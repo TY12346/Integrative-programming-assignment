@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('content')<h1>Delivery Tasks</h1><table class="table">@foreach($deliveries as $d)<tr><td>#{{ $d->delivery_id }}</td><td>{{ $d->pickup_address }}</td><td>{{ $d->delivery_status }}</td><td><a href="/deliveries/{{ $d->delivery_id }}/edit">Update</a></td></tr>@endforeach</table>@endsection

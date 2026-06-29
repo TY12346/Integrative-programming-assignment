@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('content')<h1>Dashboard</h1><p>Welcome, {{ auth()->user()->full_name }}. Role: <strong>{{ auth()->user()->role }}</strong></p><p>This beginner prototype contains user, donation, request, reservation, and delivery modules.</p>@endsection
