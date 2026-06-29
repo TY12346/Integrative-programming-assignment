@@ -1,0 +1,3 @@
+<?php
+namespace App\Models; use Illuminate\Database\Eloquent\Model;
+class FoodRequest extends Model { public $timestamps=false; protected $primaryKey='request_id'; protected $fillable=['charity_id','category_id','requested_quantity','fulfilled_quantity','unit','request_deadline','request_status']; protected $casts=['request_deadline'=>'datetime']; public function charity(){return $this->belongsTo(PartnerProfile::class,'charity_id');} public function category(){return $this->belongsTo(FoodCategory::class,'category_id');} public function reservations(){return $this->hasMany(Reservation::class,'request_id');} }

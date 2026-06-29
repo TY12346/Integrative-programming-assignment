@@ -1,0 +1,5 @@
+-- FoodLink SQL notes
+-- This Laravel project uses migrations as the source of truth for database tables.
+-- Create a MySQL database named foodlink, configure .env, then run:
+-- php artisan migrate --seed
+-- The migration database/migrations/2026_01_01_000000_create_foodlink_tables.php creates all required tables.

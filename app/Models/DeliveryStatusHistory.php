@@ -1,0 +1,2 @@
+<?php
+namespace App\Models; use Illuminate\Database\Eloquent\Model; class DeliveryStatusHistory extends Model { public $timestamps=false; protected $primaryKey='delivery_history_id'; protected $fillable=['delivery_id','old_status','new_status','changed_by','remarks']; public function delivery(){return $this->belongsTo(DeliveryTask::class,'delivery_id');} public function changedBy(){return $this->belongsTo(User::class,'changed_by');} }

@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Controllers; use App\Models\VerificationDocument; use Illuminate\Http\Request;
+class ProfileController extends Controller { public function show(){return view('profile.show');} public function update(Request $r){$u=auth()->user(); $u->update($r->only('full_name','phone_no')); $u->partnerProfile?->update($r->only('address')); return back()->with('message','Profile updated.');} public function uploadDocument(Request $r){$r->validate(['document_type'=>'required','document'=>'required|file']); $path=$r->file('document')->store('verification_documents','public'); VerificationDocument::create(['partner_id'=>auth()->user()->partnerProfile->profile_id,'document_type'=>$r->document_type,'file_path'=>$path]); return back();} }
