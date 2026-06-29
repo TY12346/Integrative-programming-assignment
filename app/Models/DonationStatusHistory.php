@@ -1,0 +1,2 @@
+<?php
+namespace App\Models; use Illuminate\Database\Eloquent\Model; class DonationStatusHistory extends Model { public $timestamps=false; protected $primaryKey='donation_history_id'; protected $fillable=['donation_id','old_status','new_status','changed_by','remarks']; public function donation(){return $this->belongsTo(FoodDonation::class,'donation_id');} public function changedBy(){return $this->belongsTo(User::class,'changed_by');} }
