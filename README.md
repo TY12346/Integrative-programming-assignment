@@ -1,7 +1,4 @@
 # FoodLink
-
-FoodLink is a beginner-friendly Laravel prototype for a surplus food donation system. It uses PHP, MySQL, MVC controllers, Blade views, Bootstrap styling, and Eloquent ORM.
-
 ## Implemented modules
 
 1. **User & Partner Management** - registration by role, login/logout, role checks, profile editing, document upload, admin user search/filter, account status updates, and verification reviews.
@@ -59,6 +56,9 @@ Versioned, authenticated with a bearer token and rate limited to 60 calls/minute
 curl -H "Authorization: Bearer foodlink-charity-demo-token" -H "Accept: application/json" http://localhost:8000/api/v1/requests
 ```
 
-## SQL export note
-
-A separate SQL dump is not required for the prototype because Laravel migrations are the source of truth. See `database/foodlink_schema_notes.sql` for the short database note, and `database/sql/module_3_3_food_request.sql` for the hand-written create + populate script of the food request tables.
+Integration drafts 
+3.1 only ACTIVE + APPROVED charities pass the policy.
+3.2 DonationGateway reads donations either locally or over their REST service (FOODLINK_DONATION_GATEWAY=http); 
+    reserving decrements current_quantity, cancelling restores it.
+3.4 DeliveryTaskObserver translates their delivery_status = DELIVERED into reservation_status = COMPLETED, which raises my fulfilled quantity automatically.
+    GET /api/v1/requests/{id}/status feeds impact dashboard.

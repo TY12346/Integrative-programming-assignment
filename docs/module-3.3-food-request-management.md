@@ -27,39 +27,17 @@ report has to cover, and lists the file to open for each claim.
 Request lifecycle: `PENDING → PARTIALLY_FULFILLED → COMPLETED`, with
 `CANCELLED` and `EXPIRED` as the two exits.
 
-### Conformance with the analysis class diagram
-
-The module introduces **no new entity class**. It uses exactly the entities and
-multiplicities on the team's diagram:
-
-```
+The module introduces 
 PartnerProfile 1 ──◆ 0..* FoodRequest
 FoodCategory   1 ─── 0..* FoodRequest
 FoodRequest    1 ──◆ 0..* Reservation
 FoodDonation   1 ──◆ 0..* Reservation
 Reservation    1 ─── 0..1 DeliveryTask
-```
-
-The request status timeline is therefore derived from the request row and its
-reservations, and the audit record of every status change is written to the
-application log instead of to a history table.
-
-Attributes added to existing tables (`food_requests.notes`, the widened
-`request_status` enum, `users.api_token`) do not affect the diagram, which by
-the assignment specification excludes attributes and methods.
-
----
 
 ## 1. PHP and MySQL
 
-* PHP 8.2 with Laravel 12; MySQL 8 via **Eloquent ORM** — no raw SQL string
-  building anywhere in the module.
 * Tables owned by the module: `food_requests` and `reservations` — the two
   entity classes the analysis class diagram assigns to it.
-* Schema: `database/migrations/2026_02_01_000000_extend_food_request_module.php`
-  (additive, so my team mates' base migration is untouched). The equivalent
-  hand-written SQL create + populate script is
-  `database/sql/module_3_3_food_request.sql`.
 * Indexes added for the two queries the dashboard actually runs:
   `(charity_id, request_status)` and `(request_deadline)`.
 * Derived values (reserved quantity, outstanding quantity, urgency) are computed
@@ -68,22 +46,25 @@ the assignment specification excludes attributes and methods.
 
 **MVC:** Models in `app/Models`, controllers in `app/Http/Controllers`, Blade
 views in `resources/views/requests`. Controllers contain no business rules —
-reads go to a repository, writes go to a service.
 
----
 
 ## 2. Design Patterns
 
 | Pattern | Where | Why it was needed |
-|---|---|---|
-| **State** | `app/Domain/RequestStatus/` — `RequestState` + `Pending/PartiallyFulfilled/Completed/Cancelled/Expired` | The request status decides what is allowed (edit, cancel, reserve) and what happens next. Each status owns its own rules, so no `if ($status === ...)` chains exist in the controllers or views. |
-| **Repository** | `app/Repositories/FoodRequestRepository.php` | One place for every food request query, reused by the web controller and the REST API. Also the single place where ownership scoping and the sort whitelist are enforced. |
-| **Strategy** | `app/Filters/Donation/` — `DonationFilter` interface, five concrete filters, `DonationFilterPipeline` context | Each donation search criterion is an interchangeable object; a new filter is one line in the service provider instead of another `if` in the controller. |
-| **Observer** | `app/Observers/ReservationObserver.php`, `app/Observers/DeliveryTaskObserver.php` | The reserved and delivered quantities must stay correct whichever module changed a reservation. The observers recalculate the request automatically, so module 3.4 does not have to call my code. |
-| **Adapter / Gateway** | `app/Services/Gateways/DonationGateway` + `Local`/`Http` implementations | Donation data belongs to module 3.2. The interface lets my module read it either from the shared database or from the donation REST service without changing a single view. |
-| **Singleton (DI container)** | `app/Providers/FoodRequestServiceProvider.php` | Repository, service and filter pipeline are registered as container singletons and injected by constructor rather than instantiated ad hoc. |
 
----
+| **State** | `app/Domain/RequestStatus/` — `RequestState` + `Pending/PartiallyFulfilled/Completed/Cancelled/Expired` 
+| The request status decides what is allowed (edit, cancel, reserve) and what happens next. Each status owns its own rules, so no `if ($status === ...)` chains exist in the controllers or views. |
+| **Repository** | `app/Repositories/FoodRequestRepository.php` 
+| One place for every food request query, reused by the web controller and the REST API. Also the single place where ownership scoping and the sort whitelist are enforced. |
+| **Strategy** | `app/Filters/Donation/` — `DonationFilter` interface, five concrete filters, `DonationFilterPipeline` context 
+| Each donation search criterion is an interchangeable object; a new filter is one line in the service provider instead of another `if` in the controller. |
+| **Observer** | `app/Observers/ReservationObserver.php`, `app/Observers/DeliveryTaskObserver.php` 
+| The reserved and delivered quantities must stay correct whichever module changed a reservation. The observers recalculate the request automatically, so module 3.4 does not have to call my code. |
+| **Adapter / Gateway** | `app/Services/Gateways/DonationGateway` + `Local`/`Http` implementations 
+| Donation data belongs to module 3.2. The interface lets my module read it either from the shared database or from the donation REST service without changing a single view. |
+| **Singleton (DI container)** | `app/Providers/FoodRequestServiceProvider.php`
+| Repository, service and filter pipeline are registered as container singletons and injected by constructor rather than instantiated ad hoc. |
+
 
 ## 3. Secure Coding Practices
 
