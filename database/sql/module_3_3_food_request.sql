@@ -6,6 +6,9 @@
 -- SQL script for the tables owned by the Food Request Management module,
 -- together with the data that populates them for the demonstration.
 --
+-- The tables match the entity classes on the team's analysis class diagram
+-- exactly: FoodRequest and Reservation. No extra entity was introduced.
+--
 -- It is the SQL equivalent of:
 --   database/migrations/2026_01_01_000000_create_foodlink_tables.php  (team base)
 --   database/migrations/2026_02_01_000000_extend_food_request_module.php (this module)
@@ -22,7 +25,6 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. Table structure
 -- ---------------------------------------------------------------------
 
-DROP TABLE IF EXISTS `request_status_histories`;
 DROP TABLE IF EXISTS `reservations`;
 DROP TABLE IF EXISTS `food_requests`;
 
@@ -66,24 +68,6 @@ CREATE TABLE `reservations` (
         FOREIGN KEY (`donation_id`) REFERENCES `food_donations` (`donation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Audit trail behind "Check Request Status". changed_by is NULL when the
--- status change was made automatically by the system.
-CREATE TABLE `request_status_histories` (
-    `request_history_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `request_id`         BIGINT UNSIGNED NOT NULL,
-    `old_status`         VARCHAR(30)     NULL,
-    `new_status`         VARCHAR(30)     NOT NULL,
-    `changed_by`         BIGINT UNSIGNED NULL,
-    `changed_at`         TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `remarks`            TEXT            NULL,
-    PRIMARY KEY (`request_history_id`),
-    KEY `request_status_histories_timeline_index` (`request_id`, `changed_at`),
-    CONSTRAINT `request_status_histories_request_id_foreign`
-        FOREIGN KEY (`request_id`) REFERENCES `food_requests` (`request_id`),
-    CONSTRAINT `request_status_histories_changed_by_foreign`
-        FOREIGN KEY (`changed_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 -- Bearer token used by the module's REST web service. Only the SHA-256 hash of
 -- the token is stored, never the token itself.
 ALTER TABLE `users`
@@ -113,19 +97,6 @@ VALUES
     (1, 1, 1, 10.00, 'CONFIRMED', DATE_ADD(NOW(), INTERVAL 1 DAY)),
     (2, 4, 2, 25.00, 'CONFIRMED', DATE_ADD(NOW(), INTERVAL 1 DAY)),
     (3, 5, 1, 20.00, 'COMPLETED', DATE_SUB(NOW(), INTERVAL 1 DAY));
-
-INSERT INTO `request_status_histories`
-    (`request_id`, `old_status`, `new_status`, `changed_by`, `remarks`)
-VALUES
-    (1, NULL,                 'PENDING',             3,    'Request submitted by charity.'),
-    (2, NULL,                 'PENDING',             3,    'Request submitted by charity.'),
-    (3, NULL,                 'PENDING',             3,    'Request submitted by charity.'),
-    (4, NULL,                 'PENDING',             3,    'Request submitted by charity.'),
-    (4, 'PENDING',            'PARTIALLY_FULFILLED', NULL, 'Reserved quantity updated to 25 of 60.'),
-    (5, NULL,                 'PENDING',             3,    'Request submitted by charity.'),
-    (5, 'PARTIALLY_FULFILLED','COMPLETED',           NULL, 'Requested quantity fully delivered.'),
-    (6, NULL,                 'PENDING',             3,    'Request submitted by charity.'),
-    (6, 'PENDING',            'EXPIRED',             NULL, 'Fulfilment deadline passed before the request was completed.');
 
 -- Demo REST API bearer token for charity@foodlink.test.
 -- Plain token : foodlink-charity-demo-token

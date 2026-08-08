@@ -12,10 +12,13 @@
  *             CANCELLED / EXPIRED) and migrates the old OPEN / FULFILLED rows.
  *          2. Adds food_requests.notes so a charity can state special
  *             requirements, plus indexes used by the request dashboard.
- *          3. Creates request_status_histories, the audit trail behind
- *             "Check Request Status".
- *          4. Adds users.api_token (SHA-256 hash) used by the module's REST
+ *          3. Adds users.api_token (SHA-256 hash) used by the module's REST
  *             web service for bearer token authentication.
+ *
+ *          No new entity class is introduced: the analysis class diagram is the
+ *          contract for the team, so the request lifecycle is derived from the
+ *          request row and its reservations rather than from a separate history
+ *          table.
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -39,19 +42,6 @@ return new class extends Migration
 
         $this->rewriteStatusColumn();
 
-        Schema::create('request_status_histories', function (Blueprint $table) {
-            $table->id('request_history_id');
-            $table->foreignId('request_id')->constrained('food_requests', 'request_id');
-            $table->string('old_status', 30)->nullable();
-            $table->string('new_status', 30);
-            // Nullable because the status can also change automatically (for
-            // example when a delivery is completed by module 3.4).
-            $table->foreignId('changed_by')->nullable()->constrained('users', 'user_id');
-            $table->timestamp('changed_at')->useCurrent();
-            $table->text('remarks')->nullable();
-            $table->index(['request_id', 'changed_at'], 'request_status_histories_timeline_index');
-        });
-
         Schema::table('users', function (Blueprint $table) {
             // Stores a SHA-256 hash of the API token, never the token itself.
             $table->string('api_token', 64)->nullable()->unique()->after('password_hash');
@@ -63,8 +53,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('api_token');
         });
-
-        Schema::dropIfExists('request_status_histories');
 
         if (DB::getDriverName() === 'mysql') {
             DB::statement("UPDATE food_requests SET request_status = 'PENDING' WHERE request_status IN ('PARTIALLY_FULFILLED', 'EXPIRED')");

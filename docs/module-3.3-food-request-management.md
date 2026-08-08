@@ -19,7 +19,7 @@ report has to cover, and lists the file to open for each claim.
 | 4 | Cancel Food Request | `RequestController@cancel`, `FoodRequestService@cancel` (releases reserved quantity back to donors) |
 | 5 | Track Reserved Quantity | `FoodRequest::getReservedQuantityAttribute`, `scopeWithReservedQuantity`, `FoodRequestService@reserve/cancelReservation`, `requests/show.blade.php` |
 | 6 | Monitor Fulfillment Deadline | `FoodRequest::getUrgencyAttribute`, `ExpiredState`, `RefreshRequestStatuses` command (scheduled hourly) |
-| 7 | Check Request Status | `App\Domain\RequestStatus\*` state classes, `RequestStatusHistory`, status timeline on the detail page |
+| 7 | Check Request Status | `App\Domain\RequestStatus\*` state classes, derived request timeline on the detail page |
 | 8 | Display Active Donations | `RequestController@donations`, `DonationGateway` |
 | 9 | Filter Donation Options | `App\Filters\Donation\{Category,StorageType,MinQuantity,ExpiryWindow}Filter` |
 | 10 | Search Specific Donations | `App\Filters\Donation\KeywordFilter` |
@@ -27,14 +27,35 @@ report has to cover, and lists the file to open for each claim.
 Request lifecycle: `PENDING → PARTIALLY_FULFILLED → COMPLETED`, with
 `CANCELLED` and `EXPIRED` as the two exits.
 
+### Conformance with the analysis class diagram
+
+The module introduces **no new entity class**. It uses exactly the entities and
+multiplicities on the team's diagram:
+
+```
+PartnerProfile 1 ──◆ 0..* FoodRequest
+FoodCategory   1 ─── 0..* FoodRequest
+FoodRequest    1 ──◆ 0..* Reservation
+FoodDonation   1 ──◆ 0..* Reservation
+Reservation    1 ─── 0..1 DeliveryTask
+```
+
+The request status timeline is therefore derived from the request row and its
+reservations, and the audit record of every status change is written to the
+application log instead of to a history table.
+
+Attributes added to existing tables (`food_requests.notes`, the widened
+`request_status` enum, `users.api_token`) do not affect the diagram, which by
+the assignment specification excludes attributes and methods.
+
 ---
 
 ## 1. PHP and MySQL
 
 * PHP 8.2 with Laravel 12; MySQL 8 via **Eloquent ORM** — no raw SQL string
   building anywhere in the module.
-* Tables owned by the module: `food_requests`, `reservations`,
-  `request_status_histories`.
+* Tables owned by the module: `food_requests` and `reservations` — the two
+  entity classes the analysis class diagram assigns to it.
 * Schema: `database/migrations/2026_02_01_000000_extend_food_request_module.php`
   (additive, so my team mates' base migration is untouched). The equivalent
   hand-written SQL create + populate script is
@@ -79,7 +100,7 @@ reads go to a repository, writes go to a service.
 | Brute force / scraping | `throttle:60,1` on the whole API group | `routes/api.php` |
 | Excessive data exposure | API Resources act as an explicit output whitelist | `FoodRequestResource`, `DonationResource` |
 | Unsafe outbound call | TLS verification on, timeouts, redirects disabled, response size capped, strict JSON decode | `HttpDonationGateway` |
-| Auditability | Every status change is written to `request_status_histories`; security relevant events are logged | `FoodRequestService::recordHistory` |
+| Auditability | Every create, edit, cancel, reserve, release and status transition is logged with the acting user id | `FoodRequestService` (`Log::info` calls) |
 
 ---
 

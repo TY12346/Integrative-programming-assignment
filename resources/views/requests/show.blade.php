@@ -142,26 +142,63 @@
             </div>
         </div>
 
-        {{-- Status history --}}
+        {{--
+            Request timeline. Derived from the request row and its reservations
+            rather than from a separate history entity, because the analysis
+            class diagram defines no history class for a food request.
+        --}}
         <div class="col-lg-4">
             <div class="card">
-                <div class="card-header">Status history</div>
+                <div class="card-header">Request timeline</div>
                 <ul class="list-group list-group-flush">
-                    @forelse ($history as $entry)
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>Request submitted</strong>
+                            <small class="text-muted">{{ $foodRequest->created_at?->format('d M H:i') }}</small>
+                        </div>
+                        <small class="text-muted">
+                            {{ $foodRequest->requested_quantity }} {{ $foodRequest->unit }} requested
+                        </small>
+                    </li>
+
+                    @foreach ($foodRequest->reservations->sortBy('created_at') as $reservation)
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
-                                <strong>{{ $entry->new_status }}</strong>
-                                <small class="text-muted">{{ $entry->changed_at?->format('d M H:i') }}</small>
+                                <strong>
+                                    @if ($reservation->reservation_status === \App\Models\Reservation::COMPLETED)
+                                        Delivered
+                                    @elseif ($reservation->reservation_status === \App\Models\Reservation::CANCELLED)
+                                        Reservation withdrawn
+                                    @else
+                                        Reserved by donor
+                                    @endif
+                                </strong>
+                                <small class="text-muted">{{ $reservation->created_at?->format('d M H:i') }}</small>
                             </div>
-                            @if ($entry->old_status)
-                                <small class="text-muted">from {{ $entry->old_status }}</small><br>
-                            @endif
-                            <small>{{ $entry->remarks }}</small>
-                            <div><small class="text-muted">by {{ $entry->actor_name }}</small></div>
+                            <small class="text-muted">
+                                {{ $reservation->reserved_quantity }}
+                                {{ $reservation->donation->measurement_unit ?? $foodRequest->unit }}
+                                · {{ $reservation->donation->food_name ?? 'donation removed' }}
+                            </small>
                         </li>
-                    @empty
-                        <li class="list-group-item text-muted">No status change recorded yet.</li>
-                    @endforelse
+                    @endforeach
+
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>Now: {{ $foodRequest->state()->label() }}</strong>
+                            <small class="text-muted">{{ $foodRequest->request_deadline?->format('d M H:i') }}</small>
+                        </div>
+                        <small class="text-muted">
+                            @if ($foodRequest->state()->isFinal())
+                                No further change is possible.
+                            @elseif ($foodRequest->isPastDeadline())
+                                The fulfilment deadline has passed.
+                            @else
+                                {{ round($progress->outstanding(), 2) }} {{ $foodRequest->unit }} still needed
+                                before the deadline.
+                            @endif
+                        </small>
+                    </li>
                 </ul>
             </div>
         </div>

@@ -16,6 +16,10 @@
  *     same donation at the same moment cannot oversubscribe it.
  *   - Every rule is re-checked here even though the form already validated it,
  *     because the REST API and the browser form are two different entry points.
+ *   - Every create, cancel, reserve, release and status transition is written to
+ *     the application log with the acting user id, which is the module's audit
+ *     trail. The analysis class diagram has no history entity for food requests,
+ *     so no extra table is introduced for this.
  */
 
 namespace App\Services;
@@ -26,7 +30,6 @@ use App\Domain\RequestStatus\RequestProgress;
 use App\Models\FoodDonation;
 use App\Models\FoodRequest;
 use App\Models\PartnerProfile;
-use App\Models\RequestStatusHistory;
 use App\Models\Reservation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -49,8 +52,6 @@ class FoodRequestService
             $request->fulfilled_quantity = 0;
             $request->request_status = (new PendingState())->code();
             $request->save();
-
-            $this->recordHistory($request, null, $request->request_status, 'Request submitted by charity.');
 
             Log::info('Food request created.', [
                 'request_id' => $request->request_id,
@@ -87,7 +88,9 @@ class FoodRequestService
         $request->fill($this->onlyEditable($data));
         $request->save();
 
-        return $this->refreshStatus($request, 'Request details updated.');
+        Log::info('Food request updated.', ['request_id' => $request->request_id, 'user_id' => Auth::id()]);
+
+        return $this->refreshStatus($request);
     }
 
     /* ------------------------------------------------------------------ */
@@ -120,9 +123,12 @@ class FoodRequestService
             $locked->request_status = (new CancelledState())->code();
             $locked->save();
 
-            $this->recordHistory($locked, $old, $locked->request_status, $reason ?: 'Cancelled by charity.');
-
-            Log::info('Food request cancelled.', ['request_id' => $locked->request_id, 'user_id' => Auth::id()]);
+            Log::info('Food request cancelled.', [
+                'request_id' => $locked->request_id,
+                'from_status' => $old,
+                'reason' => $reason ?: 'Cancelled by charity.',
+                'user_id' => Auth::id(),
+            ]);
 
             return $locked;
         });
@@ -228,7 +234,7 @@ class FoodRequestService
      * request:refresh-statuses command, so there is exactly one place where the
      * status of a request is decided.
      */
-    public function refreshStatus(FoodRequest $request, ?string $remarks = null): FoodRequest
+    public function refreshStatus(FoodRequest $request): FoodRequest
     {
         $fulfilled = (float) $request->reservations()->completed()->sum('reserved_quantity');
         $reserved = (float) $request->reservations()->active()->sum('reserved_quantity');
@@ -248,7 +254,15 @@ class FoodRequestService
         $request->save();
 
         if ($old !== $next) {
-            $this->recordHistory($request, $old, $next, $remarks ?: $this->describeTransition($progress));
+            Log::info('Food request status changed.', [
+                'request_id' => $request->request_id,
+                'from_status' => $old,
+                'to_status' => $next,
+                'requested' => $progress->requested,
+                'reserved' => $progress->reserved,
+                'fulfilled' => $progress->fulfilled,
+                'user_id' => Auth::id(),      // null when the system triggered it
+            ]);
         }
 
         // Keep the derived accessor in step with what was just written.
@@ -274,7 +288,7 @@ class FoodRequestService
             ->chunkById(100, function ($requests) use (&$changed) {
                 foreach ($requests as $request) {
                     $before = $request->request_status;
-                    $this->refreshStatus($request, 'Fulfilment deadline passed.');
+                    $this->refreshStatus($request);
                     $changed += $request->request_status !== $before ? 1 : 0;
                 }
             }, 'request_id');
@@ -321,27 +335,4 @@ class FoodRequestService
         ]));
     }
 
-    private function recordHistory(FoodRequest $request, ?string $old, string $new, string $remarks): void
-    {
-        RequestStatusHistory::create([
-            'request_id' => $request->request_id,
-            'old_status' => $old,
-            'new_status' => $new,
-            'changed_by' => Auth::id(),       // null when the system triggered it
-            'remarks' => $remarks,
-        ]);
-    }
-
-    private function describeTransition(RequestProgress $progress): string
-    {
-        if ($progress->isComplete()) {
-            return 'Requested quantity fully delivered.';
-        }
-
-        if ($progress->deadlinePassed) {
-            return 'Fulfilment deadline passed before the request was completed.';
-        }
-
-        return 'Reserved quantity updated to '.$progress->reserved.' of '.$progress->requested.'.';
-    }
 }

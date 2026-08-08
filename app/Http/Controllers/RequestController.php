@@ -111,13 +111,11 @@ class RequestController extends Controller
             'reservations.donation.category',
             'reservations.donation.donor.user',
             'reservations.deliveryTask',
-            'statusHistories.changedBy',
         ]);
 
         return view('requests.show', [
             'foodRequest' => $foodRequest,
             'progress' => $foodRequest->progress(),
-            'history' => $foodRequest->statusHistories->sortByDesc('changed_at'),
         ]);
     }
 

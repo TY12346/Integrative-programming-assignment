@@ -63,11 +63,6 @@ class FoodRequest extends Model
         return $this->hasMany(Reservation::class, 'request_id');
     }
 
-    public function statusHistories()
-    {
-        return $this->hasMany(RequestStatusHistory::class, 'request_id');
-    }
-
     /* ------------------------------------------------------------------ */
     /* Query scopes                                                        */
     /* ------------------------------------------------------------------ */

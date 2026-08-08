@@ -8,6 +8,9 @@
  *          the deadline monitor and the reserved quantity tracking can all be
  *          shown during the tutor demo without clicking through the whole flow.
  *
+ *          Only entities that appear on the analysis class diagram are seeded:
+ *          FoodRequest, Reservation and FoodDonation.
+ *
  *          It also issues a demo API token for the seeded charity so the REST
  *          web service can be tested straight away.
  */
@@ -19,7 +22,6 @@ use App\Models\FoodCategory;
 use App\Models\FoodDonation;
 use App\Models\FoodRequest;
 use App\Models\PartnerProfile;
-use App\Models\RequestStatusHistory;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -77,6 +79,8 @@ class FoodRequestSeeder extends Seeder
             'donation_status' => 'AVAILABLE',
         ]);
 
+        // withoutEvents keeps the seeded status exactly as written; in the running
+        // application the ReservationObserver would recalculate it instead.
         Reservation::withoutEvents(fn () => Reservation::create([
             'request_id' => $partial->request_id,
             'donation_id' => $donation->donation_id,
@@ -85,25 +89,9 @@ class FoodRequestSeeder extends Seeder
             'pickup_deadline' => now()->addDay(),
         ]));
 
-        RequestStatusHistory::create([
-            'request_id' => $partial->request_id,
-            'old_status' => RequestState::PENDING,
-            'new_status' => RequestState::PARTIALLY_FULFILLED,
-            'changed_by' => null,
-            'remarks' => 'Reserved quantity updated to 25 of 60.',
-        ]);
-
         // 4. Completed request, kept for the history tab.
-        $completed = $this->makeRequest($charity->profile_id, $bakery->category_id, 20, 'trays', now()->subDay(),
+        $this->makeRequest($charity->profile_id, $bakery->category_id, 20, 'trays', now()->subDay(),
             RequestState::COMPLETED, 'Pastries for the weekend soup kitchen.', fulfilled: 20);
-
-        RequestStatusHistory::create([
-            'request_id' => $completed->request_id,
-            'old_status' => RequestState::PARTIALLY_FULFILLED,
-            'new_status' => RequestState::COMPLETED,
-            'changed_by' => null,
-            'remarks' => 'Requested quantity fully delivered.',
-        ]);
 
         // 5. Expired request, deadline passed with nothing committed.
         $this->makeRequest($charity->profile_id, $canned->category_id, 30, 'boxes', now()->subDays(2),
@@ -132,14 +120,6 @@ class FoodRequestSeeder extends Seeder
         $request->request_deadline = $deadline;
         $request->request_status = $status;
         $request->save();
-
-        RequestStatusHistory::create([
-            'request_id' => $request->request_id,
-            'old_status' => null,
-            'new_status' => RequestState::PENDING,
-            'changed_by' => null,
-            'remarks' => 'Request submitted by charity.',
-        ]);
 
         return $request;
     }

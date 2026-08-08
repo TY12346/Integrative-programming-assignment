@@ -28,7 +28,7 @@ class ReservationObserver
 
     public function created(Reservation $reservation): void
     {
-        $this->sync($reservation, 'Donation reserved for this request.');
+        $this->sync($reservation);
     }
 
     public function updated(Reservation $reservation): void
@@ -38,24 +38,20 @@ class ReservationObserver
             return;
         }
 
-        $remarks = $reservation->reservation_status === Reservation::COMPLETED
-            ? 'Delivery completed for reservation #'.$reservation->reservation_id.'.'
-            : 'Reservation #'.$reservation->reservation_id.' is now '.strtolower($reservation->reservation_status).'.';
-
-        $this->sync($reservation, $remarks);
+        $this->sync($reservation);
     }
 
     public function deleted(Reservation $reservation): void
     {
-        $this->sync($reservation, 'Reservation removed from this request.');
+        $this->sync($reservation);
     }
 
-    private function sync(Reservation $reservation, string $remarks): void
+    private function sync(Reservation $reservation): void
     {
         $request = $reservation->request()->first();
 
         if ($request !== null) {
-            $this->service->refreshStatus($request, $remarks);
+            $this->service->refreshStatus($request);
         }
     }
 }
