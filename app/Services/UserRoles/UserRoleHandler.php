@@ -5,24 +5,12 @@ namespace App\Services\UserRoles;
 use App\Models\PartnerProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use InvalidArgumentException;
 
 /**
- * Factory Method creator and shared role behaviour for User & Partner Management.
+ * Product abstraction for role-specific User & Partner Management behaviour.
  */
 abstract class UserRoleHandler
 {
-    final public static function for(string $role): self
-    {
-        return match ($role) {
-            User::ROLE_FOOD_DONOR => new FoodDonorRoleHandler(),
-            User::ROLE_CHARITY => new CharityRoleHandler(),
-            User::ROLE_VOLUNTEER => new VolunteerRoleHandler(),
-            User::ROLE_ADMIN => new AdminRoleHandler(),
-            default => throw new InvalidArgumentException("Unsupported user role [$role]."),
-        };
-    }
-
     public function register(array $data, bool $createdByAdmin = false): User
     {
         $user = User::create([

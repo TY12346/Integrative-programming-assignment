@@ -23,35 +23,48 @@ namespace {
     require_once __DIR__.'/../app/Services/UserRoles/CharityRoleHandler.php';
     require_once __DIR__.'/../app/Services/UserRoles/VolunteerRoleHandler.php';
     require_once __DIR__.'/../app/Services/UserRoles/AdminRoleHandler.php';
+    require_once __DIR__.'/../app/Services/UserRoles/Factories/UserRoleFactory.php';
+    require_once __DIR__.'/../app/Services/UserRoles/Factories/FoodDonorFactory.php';
+    require_once __DIR__.'/../app/Services/UserRoles/Factories/CharityFactory.php';
+    require_once __DIR__.'/../app/Services/UserRoles/Factories/VolunteerFactory.php';
+    require_once __DIR__.'/../app/Services/UserRoles/Factories/AdminFactory.php';
+    require_once __DIR__.'/../app/Services/UserRoles/UserRoleFactoryResolver.php';
 
     use App\Services\UserRoles\AdminRoleHandler;
     use App\Services\UserRoles\CharityRoleHandler;
     use App\Services\UserRoles\FoodDonorRoleHandler;
-    use App\Services\UserRoles\UserRoleHandler;
+    use App\Services\UserRoles\Factories\AdminFactory;
+    use App\Services\UserRoles\Factories\CharityFactory;
+    use App\Services\UserRoles\Factories\FoodDonorFactory;
+    use App\Services\UserRoles\Factories\VolunteerFactory;
+    use App\Services\UserRoles\UserRoleFactoryResolver;
     use App\Services\UserRoles\VolunteerRoleHandler;
 
     $cases = [
-        'FOOD_DONOR' => FoodDonorRoleHandler::class,
-        'CHARITY' => CharityRoleHandler::class,
-        'VOLUNTEER' => VolunteerRoleHandler::class,
-        'ADMIN' => AdminRoleHandler::class,
+        'FOOD_DONOR' => [FoodDonorFactory::class, FoodDonorRoleHandler::class],
+        'CHARITY' => [CharityFactory::class, CharityRoleHandler::class],
+        'VOLUNTEER' => [VolunteerFactory::class, VolunteerRoleHandler::class],
+        'ADMIN' => [AdminFactory::class, AdminRoleHandler::class],
     ];
 
-    foreach ($cases as $role => $expected) {
-        $actual = UserRoleHandler::for($role);
-        assert($actual instanceof $expected);
-        assert($actual->role() === $role);
+    $resolver = new UserRoleFactoryResolver();
+    foreach ($cases as $role => [$expectedCreator, $expectedProduct]) {
+        $creator = $resolver->resolve($role);
+        $product = $creator->handler();
+        assert($creator instanceof $expectedCreator);
+        assert($product instanceof $expectedProduct);
+        assert($product->role() === $role);
     }
 
-    assert(UserRoleHandler::for('VOLUNTEER')->allowedDocumentTypes() !== []);
-    assert(UserRoleHandler::for('ADMIN')->allowedDocumentTypes() === []);
+    assert($resolver->resolve('VOLUNTEER')->handler()->allowedDocumentTypes() !== []);
+    assert($resolver->resolve('ADMIN')->handler()->allowedDocumentTypes() === []);
 
     try {
-        UserRoleHandler::for('UNSUPPORTED');
+        $resolver->resolve('UNSUPPORTED');
         throw new RuntimeException('Unsupported role did not throw.');
     } catch (InvalidArgumentException) {
         // Expected.
     }
 
-    echo "User role Factory Method self-check passed.\n";
+    echo "Genuine user role Factory Method self-check passed.\n";
 }
