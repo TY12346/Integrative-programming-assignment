@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 use App\Models\PartnerProfile;
 use App\Models\User;
 use App\Models\VerificationReview;
-use App\Services\UserRoles\UserRoleHandler;
+use App\Services\UserRoles\UserRoleFactoryResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
+    public function __construct(private readonly UserRoleFactoryResolver $roleFactories)
+    {
+    }
+    
     public function users(Request $request)
     {
         $sort = in_array($request->sort, ['full_name', 'email', 'role', 'account_status', 'created_at'], true)
@@ -40,7 +44,7 @@ class AdminController extends Controller
             'phone_no' => 'nullable|string|max:50',
         ]);
         $data['role'] = User::ROLE_ADMIN;
-        UserRoleHandler::for(User::ROLE_ADMIN)->register($data, true);
+        $this->roleFactories->resolve(User::ROLE_ADMIN)->register($data, true);
 
         return back()->with('message', 'Administrator account created.');
     }

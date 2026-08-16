@@ -3,17 +3,23 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\VerificationDocument;
-use App\Services\UserRoles\UserRoleHandler;
+use App\Services\UserRoles\UserRoleFactoryResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
+    public function __construct(private readonly UserRoleFactoryResolver $roleFactories)
+    {
+    }
+    
     public function show(Request $request)
     {
         $user = $request->user()->load(['partnerProfile.documents', 'partnerProfile.reviews.reviewer']);
-        $documentTypes = $user->role === User::ROLE_ADMIN ? [] : UserRoleHandler::for($user->role)->allowedDocumentTypes();
+         $documentTypes = $user->role === User::ROLE_ADMIN
+            ? []
+            : $this->roleFactories->resolve($user->role)->handler()->allowedDocumentTypes();
 
         return view('profile.show', compact('user', 'documentTypes'));
     }
@@ -36,7 +42,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         abort_if($user->role === User::ROLE_ADMIN, 403);
-        $types = UserRoleHandler::for($user->role)->allowedDocumentTypes();
+        $types = $this->roleFactories->resolve($user->role)->handler()->allowedDocumentTypes();
         $data = $request->validate([
             'document_type' => ['required', Rule::in($types)],
             'document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -60,7 +66,7 @@ class ProfileController extends Controller
     public function destroy(Request $request)
     {
         $user = $request->user();
-        $blocker = UserRoleHandler::for($user->role)->deletionBlocker($user);
+        $blocker = $this->roleFactories->resolve($user->role)->handler()->deletionBlocker($user);
 
         if ($blocker) {
             return back()->with('error', $blocker);
