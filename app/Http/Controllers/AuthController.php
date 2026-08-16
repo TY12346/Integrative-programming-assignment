@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserSession;
-use App\Services\UserRoles\UserRoleHandler;
+use App\Services\UserRoles\UserRoleFactoryResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly UserRoleFactoryResolver $roleFactories)
+    {
+    }
+
     public function loginForm() { return view('auth.login'); }
 
     public function registerForm() { return view('auth.register'); }
@@ -18,7 +22,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate($this->registrationRules());
-        $user = UserRoleHandler::for($data['role'])->register($data);
+        $user = $this->roleFactories->resolve($data['role'])->register($data);
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -33,7 +37,7 @@ class AuthController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password_hash)
-            || ! UserRoleHandler::for($user->role)->mayLogin($user)) {
+            || ! $this->roleFactories->resolve($user->role)->handler()->mayLogin($user)) {
             return back()->withErrors(['email' => 'Invalid login or unavailable account.'])->onlyInput('email');
         }
 
