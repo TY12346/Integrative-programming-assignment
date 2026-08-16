@@ -2,96 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PartnerProfile;
 use App\Models\User;
 use App\Models\UserSession;
+use App\Services\UserRoles\UserRoleHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function loginForm()
-    {
-        return view('auth.login');
-    }
+    public function loginForm() { return view('auth.login'); }
 
-    public function registerForm()
-    {
-        return view('auth.register');
-    }
+    public function registerForm() { return view('auth.register'); }
 
     public function register(Request $request)
     {
-        $data = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:4',
-            'phone_no' => 'nullable|string|max:50',
-            'role' => 'required|in:FOOD_DONOR,CHARITY,VOLUNTEER,ADMIN',
-            'address' => 'nullable|string',
-        ]);
-
-        $user = User::create([
-            'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'password_hash' => Hash::make($data['password']),
-            'phone_no' => $data['phone_no'] ?? null,
-            'role' => $data['role'],
-            'account_status' => 'ACTIVE',
-        ]);
-
-        if ($user->role !== 'ADMIN') {
-            PartnerProfile::create([
-                'user_id' => $user->user_id,
-                'address' => $data['address'] ?? null,
-            ]);
-        }
+        $data = $request->validate($this->registrationRules());
+        $user = UserRoleHandler::for($data['role'])->register($data);
 
         Auth::login($user);
+        $request->session()->regenerate();
+        $this->recordSession($request, $user);
 
-        return redirect('/dashboard');
+        return redirect('/profile')->with('message', 'Account created. Submit your verification documents to activate role features.');
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
+        $credentials = $request->validate(['email' => 'required|email', 'password' => 'required']);
         $user = User::where('email', $credentials['email'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password_hash) || $user->account_status !== 'ACTIVE') {
-            return back()->withErrors(['email' => 'Invalid login or inactive account.']);
+        if (! $user || ! Hash::check($credentials['password'], $user->password_hash)
+            || ! UserRoleHandler::for($user->role)->mayLogin($user)) {
+            return back()->withErrors(['email' => 'Invalid login or unavailable account.'])->onlyInput('email');
         }
 
         Auth::login($user);
 
-        UserSession::create([
-            'user_id' => $user->user_id,
-            'session_token' => session()->getId(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $request->session()->regenerate();
+        $this->recordSession($request, $user);
 
         return redirect('/dashboard');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        if (auth()->check()) {
-            UserSession::where('user_id', auth()->id())
+        if ($request->user()) {
+            UserSession::where('user_id', $request->user()->user_id)
+                ->where('session_token', $request->session()->getId())
                 ->where('session_status', 'ACTIVE')
-                ->update([
-                    'logout_at' => now(),
-                    'session_status' => 'LOGGED_OUT',
-                ]);
+                ->update(['logout_at' => now(), 'session_status' => 'LOGGED_OUT']);
         }
 
         Auth::logout();
-        request()->session()->invalidate();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect('/login');
+    }
+    
+    private function registrationRules(): array
+    {
+        return [
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'phone_no' => 'nullable|string|max:50',
+            'role' => 'required|in:FOOD_DONOR,CHARITY,VOLUNTEER',
+            'address' => 'nullable|string|max:1000',
+        ];
+    }
+
+    private function recordSession(Request $request, User $user): void
+    {
+        UserSession::create([
+            'user_id' => $user->user_id,
+            'session_token' => $request->session()->getId(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
     }
 }

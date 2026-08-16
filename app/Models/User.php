@@ -6,6 +6,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    public const ROLE_FOOD_DONOR = 'FOOD_DONOR';
+    public const ROLE_CHARITY = 'CHARITY';
+    public const ROLE_VOLUNTEER = 'VOLUNTEER';
+    public const ROLE_ADMIN = 'ADMIN';
+
+    public const STATUS_PENDING = 'PENDING';
+    public const STATUS_ACTIVE = 'ACTIVE';
+    public const STATUS_INACTIVE = 'INACTIVE';
+    public const STATUS_SUSPENDED = 'SUSPENDED';
+    public const STATUS_DELETED = 'DELETED';
+    
+    
     public $timestamps = false;
 
     protected $primaryKey = 'user_id';

@@ -7,6 +7,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => App\Http\Middleware\RoleMiddleware::class,
+            'verified.role' => App\Http\Middleware\VerifiedRoleMiddleware::class,
             // Bearer token authentication for the module 3.3 REST API (NG JIA QIN).
             'api.token' => App\Http\Middleware\AuthenticateApiToken::class,
         ]);

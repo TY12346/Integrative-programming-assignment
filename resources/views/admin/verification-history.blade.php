@@ -1,0 +1,7 @@
+@extends('layouts.app')
+@section('content')
+<a href="/admin/verifications" class="btn btn-link px-0">← Back to verification requests</a>
+<h1>{{ $profile->user->full_name }}</h1><p>{{ $profile->user->email }} · {{ $profile->user->role }} · <strong>{{ $profile->verification_status }}</strong></p>
+<h2 class="h4">Documents</h2><table class="table"><thead><tr><th>Submitted</th><th>Type</th><th>Status</th><th>File</th></tr></thead><tbody>@foreach ($profile->documents as $document)<tr><td>{{ $document->submitted_at?->format('Y-m-d H:i') ?? '—' }}</td><td>{{ str_replace('_', ' ', $document->document_type) }}</td><td>{{ $document->document_status }}</td><td><a href="{{ asset('storage/'.$document->file_path) }}" target="_blank" rel="noopener">View</a></td></tr>@endforeach</tbody></table>
+<h2 class="h4">Review history</h2><table class="table"><thead><tr><th>Reviewed</th><th>Decision</th><th>Reviewer</th><th>Remarks</th></tr></thead><tbody>@forelse ($profile->reviews as $review)<tr><td>{{ $review->reviewed_at?->format('Y-m-d H:i') }}</td><td>{{ $review->decision }}</td><td>{{ $review->reviewer->full_name }}</td><td>{{ $review->remarks ?: '—' }}</td></tr>@empty<tr><td colspan="4">No reviews yet.</td></tr>@endforelse</tbody></table>
+@endsection
