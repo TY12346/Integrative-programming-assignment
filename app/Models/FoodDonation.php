@@ -51,4 +51,29 @@ class FoodDonation extends Model
     {
         return $this->hasMany(Reservation::class, 'donation_id');
     }
+
+    /** User-facing label; COMPLETED is shown as Collected. DB value is unchanged. */
+    public function statusLabel(): string
+    {
+        return match ($this->donation_status) {
+            'AVAILABLE' => 'Available',
+            'RESERVED' => 'Reserved',
+            'COMPLETED' => 'Collected',
+            'CANCELLED' => 'Cancelled',
+            'EXPIRED' => 'Expired',
+            default => (string) $this->donation_status,
+        };
+    }
+
+    public function statusBadgeClass(): string
+    {
+        return match ($this->donation_status) {
+            'AVAILABLE' => 'bg-success',
+            'RESERVED' => 'bg-primary',
+            'COMPLETED' => 'bg-secondary',
+            'CANCELLED' => 'bg-dark',
+            'EXPIRED' => 'bg-danger',
+            default => 'bg-secondary',
+        };
+    }
 }

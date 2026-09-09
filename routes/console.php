@@ -3,11 +3,13 @@
  * FoodLink
  * File: routes/console.php
  *
- * Scheduled task for module 3.3 Food Request Management added by NG JIA QIN:
- * every hour, food requests whose fulfilment deadline has passed are flagged as
- * expired so the dashboard always shows the true status.
+ * Scheduled tasks:
+ * - Module 3.3 (NG JIA QIN): foodlink:refresh-requests — expire overdue food requests.
+ * - Module 3.2 Food Donation Management: foodlink:expire-donations — persist
+ *   AVAILABLE -> EXPIRED for donations past expiry_datetime.
  */
 
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('foodlink:refresh-requests')->hourly();
+Schedule::command('foodlink:expire-donations')->hourly();
