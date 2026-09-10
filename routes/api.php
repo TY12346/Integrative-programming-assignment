@@ -1,6 +1,17 @@
 <?php
+
+/**
+ Author: Ong Tin Yin
+ */
 use Illuminate\Support\Facades\Route; use App\Http\Controllers\ApiController;
-Route::get('/partners/{id}/status',[ApiController::class,'partnerStatus']);
+Route::get('/partners/{id}/status', [
+    ApiController::class,
+    'partnerStatus',
+])->middleware([
+    'api.token',
+    'verified.role:FOOD_DONOR,CHARITY,VOLUNTEER,ADMIN',
+    'throttle:60,1',
+]);
 Route::get('/donations/available',[ApiController::class,'availableDonations']);
 Route::get('/requests/{id}/reservations',[ApiController::class,'requestReservations']);
 Route::get('/deliveries/{id}/status',[ApiController::class,'deliveryStatus']);
