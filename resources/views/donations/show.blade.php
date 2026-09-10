@@ -1,7 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($canManage = (int) (auth()->user()->partnerProfile?->profile_id) === (int) $donation->donor_id)
+    @php
+        $formatDonationQuantity = function ($quantity, $unit): string {
+            $countUnits = ['packs', 'boxes', 'trays', 'pieces', 'meals'];
+            $value = (float) $quantity;
+
+            if (in_array((string) $unit, $countUnits, true) && abs($value - (int) $value) < 0.00001) {
+                return (string) (int) $value;
+            }
+
+            return number_format($value, 2, '.', '');
+        };
+    @endphp
 
     <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
@@ -16,11 +27,11 @@
         <div class="card-body">
             <div class="row text-center">
                 <div class="col-md-4">
-                    <div class="h4 mb-0">{{ $donation->donation_quantity }} {{ $donation->measurement_unit }}</div>
+                    <div class="h4 mb-0">{{ $formatDonationQuantity($donation->donation_quantity, $donation->measurement_unit) }} {{ $donation->measurement_unit }}</div>
                     <small class="text-muted">Original quantity donated</small>
                 </div>
                 <div class="col-md-4">
-                    <div class="h4 mb-0">{{ $donation->current_quantity }} {{ $donation->measurement_unit }}</div>
+                    <div class="h4 mb-0">{{ $formatDonationQuantity($donation->current_quantity, $donation->measurement_unit) }} {{ $donation->measurement_unit }}</div>
                     <small class="text-muted">Remaining available quantity</small>
                 </div>
                 <div class="col-md-4">
@@ -52,10 +63,10 @@
                 <dd class="col-sm-8">{{ $donation->category->category_name ?? '—' }}</dd>
 
                 <dt class="col-sm-4">Original quantity</dt>
-                <dd class="col-sm-8">{{ $donation->donation_quantity }} {{ $donation->measurement_unit }}</dd>
+                <dd class="col-sm-8">{{ $formatDonationQuantity($donation->donation_quantity, $donation->measurement_unit) }} {{ $donation->measurement_unit }}</dd>
 
                 <dt class="col-sm-4">Remaining available quantity</dt>
-                <dd class="col-sm-8">{{ $donation->current_quantity }} {{ $donation->measurement_unit }}</dd>
+                <dd class="col-sm-8">{{ $formatDonationQuantity($donation->current_quantity, $donation->measurement_unit) }} {{ $donation->measurement_unit }}</dd>
 
                 <dt class="col-sm-4">Measurement unit</dt>
                 <dd class="col-sm-8">{{ $donation->measurement_unit }}</dd>
@@ -119,47 +130,19 @@
         <div class="card-header">Photos</div>
         <div class="card-body">
             @if ($donation->photos->isEmpty())
-                <p class="text-muted">No photos available</p>
+                <p class="text-muted mb-0">No photos available</p>
             @else
-                <div class="row g-3 mb-3">
+                <div class="row g-3">
                     @foreach ($donation->photos as $photo)
                         <div class="col-6 col-md-4 col-lg-3">
                             <img
-                                class="img-fluid rounded border mb-2"
-                                src="{{ asset('storage/'.$photo->file_path) }}"
+                                class="img-fluid rounded border"
+                                src="{{ url('/donations/photos/'.$photo->photo_id.'/file') }}"
                                 alt="Donation photo {{ $photo->photo_id }}"
                             >
-                            @if ($canManage)
-                                <form
-                                    method="post"
-                                    action="/donations/{{ $donation->donation_id }}/photos/{{ $photo->photo_id }}"
-                                    onsubmit="return confirm('Delete this photo?');"
-                                >
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">Delete</button>
-                                </form>
-                            @endif
                         </div>
                     @endforeach
                 </div>
-            @endif
-
-            @if ($canManage)
-                <hr>
-                <h2 class="h6">Upload photos</h2>
-                <form method="post" action="/donations/{{ $donation->donation_id }}/photos" enctype="multipart/form-data">
-                    @csrf
-                    <input
-                        class="form-control mb-2"
-                        type="file"
-                        name="photos[]"
-                        accept=".jpeg,.jpg,.png,.webp,image/jpeg,image/png,image/webp"
-                        multiple
-                        required
-                    >
-                    <button type="submit" class="btn btn-success">Upload</button>
-                </form>
             @endif
         </div>
     </div>

@@ -1,15 +1,11 @@
 <?php
+/* Lau Ke Xin */
 
 namespace Database\Seeders;
 
 use App\Models\FoodCategory;
 use Illuminate\Database\Seeder;
 
-/**
- * Seeds the project's shared food categories when DatabaseSeeder cannot be rerun.
- *
- * Run with: php artisan db:seed --class=FoodCategorySeeder
- */
 class FoodCategorySeeder extends Seeder
 {
     public function run(): void

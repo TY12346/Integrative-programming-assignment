@@ -1,11 +1,5 @@
 <?php
-/**
- * FoodLink - Module 3.2 Food Donation Management
- * File   : app/Services/DonationExpiryService.php
- * Purpose: Persist AVAILABLE -> EXPIRED for donations whose expiry_datetime
- *          has passed. Complements query-time expiry filters used by the
- *          donation board and Module 3.3 gateways.
- */
+/* Lau Ke Xin */
 
 namespace App\Services;
 

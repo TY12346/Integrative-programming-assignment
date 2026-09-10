@@ -33,6 +33,17 @@
             || (! empty($criteria['donation_status']) && $criteria['donation_status'] !== 'AVAILABLE');
 
         $filtersOpen = $panelFiltersActive;
+
+        $formatDonationQuantity = function ($quantity, $unit): string {
+            $countUnits = ['packs', 'boxes', 'trays', 'pieces', 'meals'];
+            $value = (float) $quantity;
+
+            if (in_array((string) $unit, $countUnits, true) && abs($value - (int) $value) < 0.00001) {
+                return (string) (int) $value;
+            }
+
+            return number_format($value, 2, '.', '');
+        };
     @endphp
 
     <div class="mb-3">
@@ -146,12 +157,12 @@
                     <div class="col-md-4">
                         <label class="form-label" for="donation_status">Donation status</label>
                         <select class="form-select" id="donation_status" name="donation_status">
-                            <option value="">Available (default)</option>
+                            <option value="">Available</option>
                             @foreach ($statuses as $status)
+                                @continue($status === 'AVAILABLE')
                                 <option value="{{ $status }}"
                                     @selected(($criteria['donation_status'] ?? '') === $status)>
                                     {{ match ($status) {
-                                        'AVAILABLE' => 'Available',
                                         'RESERVED' => 'Reserved',
                                         'COMPLETED' => 'Collected',
                                         'CANCELLED' => 'Cancelled',
@@ -209,8 +220,8 @@
                                 <p class="text-muted small mb-2">{{ $donation->category->category_name ?? 'Uncategorised' }}</p>
                                 <p class="mb-1">
                                     Remaining:
-                                    <strong>{{ $donation->current_quantity }} {{ $donation->measurement_unit }}</strong>
-                                    <span class="text-muted">(original {{ $donation->donation_quantity }} {{ $donation->measurement_unit }})</span>
+                                    <strong>{{ $formatDonationQuantity($donation->current_quantity, $donation->measurement_unit) }} {{ $donation->measurement_unit }}</strong>
+                                    <span class="text-muted">(original {{ $formatDonationQuantity($donation->donation_quantity, $donation->measurement_unit) }} {{ $donation->measurement_unit }})</span>
                                 </p>
                                 <p class="mb-1 text-muted">
                                     Expires {{ $donation->expiry_datetime?->format('d M Y H:i') ?? '—' }}
@@ -218,10 +229,7 @@
                                 </p>
                                 <p class="mb-0">Pickup: {{ $donation->pickup_address }}</p>
                             </div>
-                            @if (auth()->user()->role === 'FOOD_DONOR'
-                                && (int) (auth()->user()->partnerProfile?->profile_id) === (int) $donation->donor_id)
-                                <a class="btn btn-sm btn-outline-success flex-shrink-0" href="/donations/{{ $donation->donation_id }}">View</a>
-                            @endif
+                            <a class="btn btn-sm btn-outline-success flex-shrink-0" href="{{ route('donations.show', $donation) }}">View</a>
                         </div>
                     </div>
                 </div>

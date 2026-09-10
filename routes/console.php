@@ -5,7 +5,7 @@
  *
  * Scheduled tasks:
  * - Module 3.3 (NG JIA QIN): foodlink:refresh-requests — expire overdue food requests.
- * - Module 3.2 Food Donation Management: foodlink:expire-donations — persist
+ * - Module 3.2 (LAU KE XIN): foodlink:expire-donations — persist
  *   AVAILABLE -> EXPIRED for donations past expiry_datetime.
  */
 

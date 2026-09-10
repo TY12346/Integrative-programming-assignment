@@ -45,7 +45,13 @@
     @if (session('message'))<div class="alert alert-info">{{ session('message') }}</div>@endif
     @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
     @if ($errors->any())
-        <div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
+        <div class="alert alert-danger" role="alert">
+            @hasSection('error_summary')
+                @yield('error_summary')
+            @else
+                <ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+            @endif
+        </div>
     @endif
     @yield('content')
 </main>
