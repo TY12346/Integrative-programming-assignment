@@ -13,7 +13,7 @@
         <div class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
             @auth
                 <a class="nav-link" href="/profile">Profile</a>
-                @php($hasRoleAccess = \App\Services\UserRoles\UserRoleHandler::for(auth()->user()->role)->mayAccessRoleFeatures(auth()->user()))
+                @php($hasRoleAccess = app(\App\Services\UserRoles\UserRoleFactoryResolver::class)->resolve(auth()->user()->role)->handler()->mayAccessRoleFeatures(auth()->user()))
                 @if ($hasRoleAccess)
                     <a class="nav-link" href="/donations/available">Available Donations</a>
                     @if (auth()->user()->role === 'ADMIN')
