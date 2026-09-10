@@ -1,11 +1,5 @@
 <?php
-/**
- * FoodLink - Module 3.2 Food Donation Management
- * File   : app/Console/Commands/ExpireDonations.php
- * Purpose: Hourly sweep that persists AVAILABLE -> EXPIRED for donations
- *          whose expiry_datetime has passed. Manual demo run:
- *          php artisan foodlink:expire-donations
- */
+/* Lau Ke Xin */
 
 namespace App\Console\Commands;
 

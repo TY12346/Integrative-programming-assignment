@@ -1,10 +1,5 @@
 <?php
-/**
- * FoodLink - Module 3.2 Food Donation Management
- * File   : app/Filters/Donation/DonationStatusFilter.php
- * Purpose: Strategy for filtering donations by donation_status.
- *          Uses the existing schema enum values (COMPLETED is stored as-is).
- */
+/* Lau Ke Xin */
 
 namespace App\Filters\Donation;
 

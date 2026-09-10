@@ -8,14 +8,14 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class TestDonorSeeder extends Seeder
+class SecondTestDonorSeeder extends Seeder
 {
     public function run(): void
     {
         $user = User::query()->firstOrCreate(
-            ['email' => 'testdonor@foodlink.test'],
+            ['email' => 'seconddonor@foodlink.test'],
             [
-                'full_name' => 'Test Food Donor',
+                'full_name' => 'Second Test Food Donor',
                 'password_hash' => Hash::make('password'),
                 'role' => User::ROLE_FOOD_DONOR,
                 'account_status' => User::STATUS_ACTIVE,
@@ -25,7 +25,7 @@ class TestDonorSeeder extends Seeder
         PartnerProfile::query()->firstOrCreate(
             ['user_id' => $user->user_id],
             [
-                'address' => '123 Test Donor Street',
+                'address' => '456 Second Donor Avenue',
                 'verification_status' => 'APPROVED',
             ]
         );

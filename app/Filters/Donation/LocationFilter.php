@@ -1,10 +1,5 @@
 <?php
-/**
- * FoodLink - Module 3.2 Food Donation Management
- * File   : app/Filters/Donation/LocationFilter.php
- * Purpose: Strategy for filtering donations by pickup location/address.
- *          Uses the existing food_donations.pickup_address column.
- */
+/* Lau Ke Xin */
 
 namespace App\Filters\Donation;
 

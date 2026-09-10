@@ -131,11 +131,13 @@ class DonationController extends Controller
             'remarks' => 'Donation created',
         ]);
 
-        if ($request->hasFile('photo')) {
-            DonationPhoto::create([
-                'donation_id' => $donation->donation_id,
-                'file_path' => $request->file('photo')->store('donation_photos', 'public'),
-            ]);
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $file) {
+                DonationPhoto::create([
+                    'donation_id' => $donation->donation_id,
+                    'file_path' => $file->store('donation_photos', 'public'),
+                ]);
+            }
         }
 
         return redirect('/donations')->with('message', 'Donation created.');
@@ -143,7 +145,7 @@ class DonationController extends Controller
 
     public function show(FoodDonation $donation)
     {
-        $this->ensureDonorOwns($donation);
+        $this->ensureCanViewDonation($donation);
         $donation->load(['category', 'photos', 'statusHistories.changedBy']);
 
         return view('donations.show', compact('donation'));
@@ -153,6 +155,7 @@ class DonationController extends Controller
     {
         $this->ensureDonorOwns($donation);
         $this->ensureDonationEditable($donation);
+        $donation->load('photos');
 
         return view('donations.form', [
             'donation' => $donation,
@@ -198,6 +201,14 @@ class DonationController extends Controller
         $data = $request->validate([
             'photos' => ['required', 'array', 'min:1'],
             'photos.*' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+        ], [
+            'photos.required' => 'Please upload at least one photo.',
+            'photos.array' => 'Please upload a valid image file.',
+            'photos.min' => 'Please upload at least one photo.',
+            'photos.*.required' => 'Please upload a valid image file.',
+            'photos.*.image' => 'Please upload a valid image file.',
+            'photos.*.mimes' => 'Each photo must be a JPEG, JPG, PNG, or WebP image.',
+            'photos.*.max' => 'Each photo must not be larger than 5 MB.',
         ]);
 
         foreach ($data['photos'] as $file) {
@@ -207,7 +218,7 @@ class DonationController extends Controller
             ]);
         }
 
-        return redirect('/donations/'.$donation->donation_id)
+        return redirect('/donations/'.$donation->donation_id.'/edit')
             ->with('message', 'Photo(s) uploaded.');
     }
 
@@ -223,8 +234,32 @@ class DonationController extends Controller
 
         $photo->delete();
 
-        return redirect('/donations/'.$donation->donation_id)
+        return redirect('/donations/'.$donation->donation_id.'/edit')
             ->with('message', 'Photo deleted.');
+    }
+
+    /** Stream a donation photo from the public disk (works without a storage symlink). */
+    public function servePhoto(DonationPhoto $photo)
+    {
+        $photo->loadMissing('donation');
+        abort_unless($photo->donation !== null, 404);
+        $this->ensureCanViewDonation($photo->donation);
+        abort_unless($photo->file_path && Storage::disk('public')->exists($photo->file_path), 404);
+
+        return Storage::disk('public')->response($photo->file_path);
+    }
+
+    /**
+     * Viewing is allowed for the owning donor, or for any authenticated caller
+     * when the donation is still AVAILABLE (e.g. Available Donations board).
+     */
+    private function ensureCanViewDonation(FoodDonation $donation): void
+    {
+        if ($donation->donation_status === 'AVAILABLE') {
+            return;
+        }
+
+        $this->ensureDonorOwns($donation);
     }
 
     /**
@@ -267,13 +302,21 @@ class DonationController extends Controller
     {
         $maxQuantity = (float) config('foodlink.request.max_quantity', 100000);
         $units = config('foodlink.request.units', []);
+        $countUnits = ['packs', 'boxes', 'trays', 'pieces', 'meals'];
+        $requiresWholeNumber = in_array($request->input('measurement_unit'), $countUnits, true);
 
         $rules = [
             'category_id' => ['required', 'integer', 'exists:food_categories,category_id'],
             'food_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'donation_quantity' => ['required', 'numeric', 'gt:0', 'max:'.$maxQuantity],
             'measurement_unit' => ['required', 'string', 'max:255', Rule::in($units)],
+            'donation_quantity' => array_values(array_filter([
+                'required',
+                'numeric',
+                'gt:0',
+                'max:'.$maxQuantity,
+                $requiresWholeNumber ? 'integer' : null,
+            ])),
             'expiry_datetime' => ['required', 'date', 'after:now'],
             'pickup_address' => ['required', 'string', 'max:1000'],
             'storage_type' => ['nullable', 'string', 'max:255'],
@@ -281,10 +324,44 @@ class DonationController extends Controller
         ];
 
         if ($creating) {
-            $rules['photo'] = ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'];
+            $rules['photos'] = ['nullable', 'array'];
+            $rules['photos.*'] = ['image', 'mimes:jpeg,jpg,png,webp', 'max:5120'];
         }
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'category_id.required' => 'Please select a food category.',
+            'category_id.integer' => 'Please select a valid food category.',
+            'category_id.exists' => 'The selected food category is invalid.',
+            'food_name.required' => 'Please enter the food name.',
+            'food_name.string' => 'The food name must be text.',
+            'food_name.max' => 'The food name may not be longer than 255 characters.',
+            'description.string' => 'The description must be text.',
+            'description.max' => 'The description may not be longer than 5000 characters.',
+            'donation_quantity.required' => 'Please enter the donation quantity.',
+            'donation_quantity.numeric' => 'The donation quantity must be a number.',
+            'donation_quantity.gt' => 'The donation quantity must be greater than zero.',
+            'donation_quantity.max' => 'The donation quantity may not be greater than '.$maxQuantity.'.',
+            'donation_quantity.integer' => 'The donation quantity must be a whole number when the selected measurement unit is packs, boxes, trays, pieces, or meals.',
+            'measurement_unit.required' => 'Please select a measurement unit.',
+            'measurement_unit.string' => 'Please select a valid measurement unit.',
+            'measurement_unit.max' => 'The measurement unit may not be longer than 255 characters.',
+            'measurement_unit.in' => 'Please select a valid measurement unit from the list.',
+            'expiry_datetime.required' => 'Please enter the expiry date and time.',
+            'expiry_datetime.date' => 'Please enter a valid expiry date and time.',
+            'expiry_datetime.after' => 'The expiry date and time must be in the future.',
+            'pickup_address.required' => 'Please enter the pickup address.',
+            'pickup_address.string' => 'The pickup address must be text.',
+            'pickup_address.max' => 'The pickup address may not be longer than 1000 characters.',
+            'storage_type.string' => 'The storage requirement must be text.',
+            'storage_type.max' => 'The storage requirement may not be longer than 255 characters.',
+            'halal_status.string' => 'The halal status must be text.',
+            'halal_status.max' => 'The halal status may not be longer than 255 characters.',
+            'photos.*.image' => 'Each uploaded file must be an image.',
+            'photos.*.mimes' => 'Each photo must be a JPEG, PNG, or WebP image.',
+            'photos.*.max' => 'Each photo may not be larger than 5 MB.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Never mass-assign ownership, stock, or status from the request.
         unset(
@@ -292,7 +369,7 @@ class DonationController extends Controller
             $validated['donation_id'],
             $validated['current_quantity'],
             $validated['donation_status'],
-            $validated['photo']
+            $validated['photos']
         );
 
         return $validated;
