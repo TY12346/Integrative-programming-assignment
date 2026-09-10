@@ -5,23 +5,56 @@ namespace App\Http\Middleware;
 use App\Services\UserRoles\UserRoleFactoryResolver;
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class VerifiedRoleMiddleware
 {
-    public function __construct(private readonly UserRoleFactoryResolver $roleFactories)
-    {
+    public function __construct(
+        private readonly UserRoleFactoryResolver $roleFactories
+    ) {
     }
-    
-    public function handle(Request $request, Closure $next, string ...$roles)
-    {
+
+    public function handle(
+        Request $request,
+        Closure $next,
+        string ...$allowedRoles
+    ): Response {
+        if (empty($allowedRoles)) {
+            abort(
+                403,
+                'Access denied: no permitted roles were configured for this route.'
+            );
+        }
+
         $user = $request->user();
 
-        abort_unless($user && in_array($user->role, $roles, true), 403);
-        abort_unless(
-            $this->roleFactories->resolve($user->role)->handler()->mayAccessRoleFeatures($user),
-            403,
-            'Your account must be verified and active.'
-        );
+        if (! $user) {
+            abort(
+                401,
+                'Authentication is required.'
+            );
+        }
+
+        if (! in_array($user->role, $allowedRoles, true)) {
+            abort(
+                403,
+                'Privilege escalation prevented. Required role(s): '
+                .implode(', ', $allowedRoles)
+                .'. Your current role is '.$user->role.'.'
+            );
+        }
+
+        $hasAccess = $this->roleFactories
+            ->resolve($user->role)
+            ->handler()
+            ->mayAccessRoleFeatures($user);
+
+        if (! $hasAccess) {
+            abort(
+                403,
+                'Access denied: your account must be verified and active.'
+            );
+        }
 
         return $next($request);
     }

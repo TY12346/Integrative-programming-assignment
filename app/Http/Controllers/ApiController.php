@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DeliveryTask;
 use App\Models\FoodDonation;
 use App\Models\FoodRequest;
+use App\Models\User;
 use App\Models\PartnerProfile;
 use Illuminate\Http\Request;
 
@@ -19,10 +20,31 @@ class ApiController extends Controller
         ]);
     }
 
-    public function partnerStatus(int $id)
+    public function partnerStatus(Request $request, int $id)
     {
+        $profile = PartnerProfile::query()
+            ->with('user')
+            ->findOrFail($id);
+
+        $viewer = $request->user();
+
+        $isAdministrator = $viewer?->role === User::ROLE_ADMIN;
+
+        $isOwner = (int) (
+            $viewer?->partnerProfile?->profile_id ?? 0
+        ) === $id;
+
+        abort_unless(
+            $isAdministrator || $isOwner,
+            403,
+            'Access denied.'
+        );
+
         return $this->wrap(
-            PartnerProfile::findOrFail($id)->only('profile_id', 'verification_status')
+            $profile->only(
+                'profile_id',
+                'verification_status'
+            )
         );
     }
 

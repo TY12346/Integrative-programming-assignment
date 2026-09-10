@@ -1,5 +1,11 @@
 <?php
 
+/**
+Author: Ong Tin Yin
+ */
+
+
+
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -67,4 +73,14 @@ class User extends Authenticatable
     {
         return $this->role === $role;
     }
+    
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'last_failed_login_at' => 'datetime',
+            'locked_until' => 'datetime',
+            'failed_login_attempts' => 'integer',
+        ];
+    }   
 }
