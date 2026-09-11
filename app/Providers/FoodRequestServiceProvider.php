@@ -1,21 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Providers/FoodRequestServiceProvider.php
- * Purpose: Wires the Food Request Management module into the framework.
- *
- *          This is where three of the module's design patterns are assembled:
- *            - SINGLETON  : the repository, service and filter pipeline are
- *                           registered as singletons in Laravel's service
- *                           container, so one shared instance is injected
- *                           everywhere instead of being created per class.
- *            - STRATEGY   : the concrete donation filters are listed here, so a
- *                           new filter is a one line change.
- *            - OBSERVER   : the Reservation model observer is attached here.
- *          It also binds the DonationGateway abstraction to the local or the
- *          HTTP implementation according to configuration, and registers the
- *          authorisation policy.
  */
 
 namespace App\Providers;
@@ -80,8 +65,7 @@ class FoodRequestServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // OBSERVER: keeps request quantities and status in step with any change
-        // to a reservation, including changes made by module 3.4.
+    
         Reservation::observe(ReservationObserver::class);
 
         // Integration draft with the Delivery and Impact Tracking module (3.4):
@@ -90,9 +74,6 @@ class FoodRequestServiceProvider extends ServiceProvider
         DeliveryTask::observe(DeliveryTaskObserver::class);
 
         Gate::policy(FoodRequest::class, FoodRequestPolicy::class);
-
-        // The interface is styled with Bootstrap 5, so paginate() must render
-        // Bootstrap markup instead of the framework default.
         Paginator::useBootstrapFive();
     }
 }

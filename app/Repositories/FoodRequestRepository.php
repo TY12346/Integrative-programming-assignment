@@ -1,16 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Repositories/FoodRequestRepository.php
- * Purpose: REPOSITORY design pattern. All Eloquent queries for food requests
- *          live here, so the controllers stay thin and the same query rules are
- *          reused by the web controller and by the REST web service.
- *
- * Secure coding: every read is scoped to the charity that owns the rows, and
- * the sort column is resolved from a fixed whitelist instead of being taken
- * from the query string, which rules out both broken access control and order
- * by injection.
  */
 
 namespace App\Repositories;

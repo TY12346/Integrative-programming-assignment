@@ -1,12 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Services/Gateways/LocalDonationGateway.php
- * Purpose: Default gateway implementation. Reads the donation data owned by
- *          module 3.2 through Eloquent ORM and narrows it with the injected
- *          strategy pipeline. Used when the whole system runs as one Laravel
- *          application (the normal case for the tutor demo).
  */
 
 namespace App\Services\Gateways;

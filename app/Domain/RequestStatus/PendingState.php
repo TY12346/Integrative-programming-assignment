@@ -1,9 +1,8 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Domain/RequestStatus/PendingState.php
- * Purpose: Concrete state. The request has been submitted but no donor has
+
+ * Purpose: . The request has been submitted but no donor has
  *          committed anything yet, so the charity may still edit or cancel it.
  */
 

@@ -1,15 +1,6 @@
 {{--
-    FoodLink - Module 3.3 Food Request Management
-    Author : NG JIA QIN
-    File   : resources/views/requests/donations.blade.php
-    Purpose: Function 8 "Display Active Donations", function 9 "Filter Donation
-             Options" and function 10 "Search Specific Donations", plus the
-             reserve action that feeds function 5 "Track Reserved Quantity".
+    FoodLink - Module 3.3 Food Request Management: NG JIA QIN
 
-             The donation data shown here is owned by the Food Donation
-             Management module (3.2) and is read through DonationGateway, so
-             this page works whether the two modules share a database or talk
-             over the REST web service.
 --}}
 @extends('layouts.app')
 

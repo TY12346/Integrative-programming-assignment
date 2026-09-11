@@ -1,8 +1,7 @@
 <?php
 /**
- * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Console/Commands/RefreshRequestStatuses.php
+ * FoodLink - Module 3.3 Food Request Management NG JIA QIN
+
  * Purpose: Supports "Monitor Fulfillment Deadline". A food request whose
  *          deadline passes has to move to EXPIRED even when nobody opens the
  *          page, so this command sweeps the active requests. It is scheduled

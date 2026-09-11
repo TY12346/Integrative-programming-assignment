@@ -1,19 +1,5 @@
 <?php
-/**
- * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : database/seeders/FoodRequestSeeder.php
- * Purpose: Demo data for the Food Request Management module. It creates one
- *          request in each lifecycle state so the dashboard, the status badges,
- *          the deadline monitor and the reserved quantity tracking can all be
- *          shown during the tutor demo without clicking through the whole flow.
- *
- *          Only entities that appear on the analysis class diagram are seeded:
- *          FoodRequest, Reservation and FoodDonation.
- *
- *          It also issues a demo API token for the seeded charity so the REST
- *          web service can be tested straight away.
- */
+
 
 namespace Database\Seeders;
 

@@ -99,15 +99,9 @@ Route::prefix('v1')
     
 /*
 |--------------------------------------------------------------------------
-| Module 3.3 Food Request Management - REST web service
-| Author: NG JIA QIN
+| Module 3.3 Food Request Management  NG JIA QIN
 |--------------------------------------------------------------------------
-| Versioned under /api/v1 so the contract can evolve without breaking the
-| clients that other modules already use.
-|
-| Security: every route requires a bearer token (api.token middleware) and is
-| rate limited to 60 calls per minute per client, which blunts both brute force
-| token guessing and scraping of the donation board.
+
 */
 Route::prefix('v1')
     ->middleware(['api.token', 'throttle:60,1'])

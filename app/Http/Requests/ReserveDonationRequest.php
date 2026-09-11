@@ -1,15 +1,9 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Requests/ReserveDonationRequest.php
  * Purpose: Validation and authorisation for reserving a donation against a food
  *          request ("Track Reserved Quantity").
  *
- * Secure coding: the donation id is checked for existence here, but the real
- * availability and quantity checks are repeated inside FoodRequestService under
- * a row lock, because between validation and commit another charity may have
- * taken the same food.
  */
 
 namespace App\Http\Requests;

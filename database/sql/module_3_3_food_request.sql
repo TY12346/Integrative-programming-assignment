@@ -1,21 +1,5 @@
 -- =====================================================================
 -- FoodLink - Module 3.3 Food Request Management
--- Author : NG JIA QIN
--- File   : database/sql/module_3_3_food_request.sql
---
--- SQL script for the tables owned by the Food Request Management module,
--- together with the data that populates them for the demonstration.
---
--- The tables match the entity classes on the team's analysis class diagram
--- exactly: FoodRequest and Reservation. No extra entity was introduced.
---
--- It is the SQL equivalent of:
---   database/migrations/2026_01_01_000000_create_foodlink_tables.php  (team base)
---   database/migrations/2026_02_01_000000_extend_food_request_module.php (this module)
---
--- Run it against the `foodlink` database AFTER the shared base tables
--- (users, partner_profiles, food_categories, food_donations) exist:
---   mysql -u root -p foodlink < database/sql/module_3_3_food_request.sql
 -- =====================================================================
 
 SET NAMES utf8mb4;

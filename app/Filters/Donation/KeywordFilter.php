@@ -1,14 +1,9 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Filters/Donation/KeywordFilter.php
  * Purpose: Strategy implementing "Search Specific Donations". Matches the free
  *          text keyword against the food name and description.
- *
- * Secure coding: the keyword is bound as a parameter (never concatenated into
- * SQL) and the LIKE wildcards % _ \ are escaped, so a user cannot turn the
- * search box into a wildcard scan of the whole table.
+ 
  */
 
 namespace App\Filters\Donation;

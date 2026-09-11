@@ -1,18 +1,11 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
  * File   : app/Observers/ReservationObserver.php
  * Purpose: OBSERVER design pattern. The reserved and fulfilled quantities of a
  *          food request must stay correct no matter which module changed a
  *          reservation - my own reserve screen, or the Delivery and Impact
  *          Tracking module (3.4) marking a delivery as completed.
- *
- *          Instead of asking every module to remember to call my service, this
- *          observer listens to the Reservation model events and recalculates
- *          the parent request itself. That is the integration contract for
- *          module 3.4: set reservation_status = 'COMPLETED' and my module
- *          updates the request status and history automatically.
  */
 
 namespace App\Observers;

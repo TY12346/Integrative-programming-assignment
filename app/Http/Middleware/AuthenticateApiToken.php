@@ -1,19 +1,6 @@
 <?php
 /**
- * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Middleware/AuthenticateApiToken.php
- * Purpose: Stateless bearer token authentication for the module's REST web
- *          service. A client sends "Authorization: Bearer <token>" and the
- *          middleware resolves the FoodLink user behind it, so the same
- *          policies used by the web interface also protect the API.
- *
- * Secure coding notes:
- *   - Only the SHA-256 hash of a token is stored in users.api_token, so a
- *     database leak does not hand out working credentials.
- *   - Lookup happens on the hash, so no plaintext secret is ever compared.
- *   - Suspended or deleted accounts are rejected even with a valid token.
- *   - Failures return a generic 401 and are logged without the token value.
+ * FoodLink - Module 3.3 Food Request Managemen
  */
 
 namespace App\Http\Middleware;

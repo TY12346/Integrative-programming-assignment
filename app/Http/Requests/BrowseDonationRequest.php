@@ -2,14 +2,9 @@
 /**
  * FoodLink - Module 3.3 Food Request Management
  * Author : NG JIA QIN
- * File   : app/Http/Requests/BrowseDonationRequest.php
  * Purpose: Validation for "Display Active Donations", "Filter Donation Options"
  *          and "Search Specific Donations". It converts the query string into
  *          the clean criteria array understood by DonationFilterPipeline.
- *
- * Secure coding: the search box is length limited and stripped of control
- * characters before it is used, and only known criteria keys are forwarded, so
- * arbitrary query parameters cannot influence the donation query.
  */
 
 namespace App\Http\Requests;

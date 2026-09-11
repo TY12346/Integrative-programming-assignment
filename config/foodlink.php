@@ -1,9 +1,8 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : config/foodlink.php
- * Purpose: Configuration for the Food Request Management module, including the
+
+ * Configuration for the Food Request Management module, including the
  *          donation gateway driver used to integrate with the Food Donation
  *          Management module (3.2) and the request business rules.
  */
@@ -18,15 +17,7 @@ return [
         ),
     ],
     
-    /*
-    | Which implementation of App\Services\Gateways\DonationGateway is used when
-    | this module needs data owned by the Food Donation Management module.
-    |
-    |   local -> read the donation tables directly through Eloquent (default,
-    |            works offline and during tutor demos).
-    |   http  -> consume the donation REST web service over HTTP (cURL), which
-    |            is how the two modules integrate when deployed separately.
-    */
+   
     'donation_gateway' => env('FOODLINK_DONATION_GATEWAY', 'local'),
 
     // Base URL of the FoodLink web service consumed by HttpDonationGateway.

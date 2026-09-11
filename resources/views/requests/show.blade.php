@@ -1,12 +1,5 @@
 {{--
-    FoodLink - Module 3.3 Food Request Management
-    Author : NG JIA QIN
-    File   : resources/views/requests/show.blade.php
-    Purpose: Function 5 "Track Reserved Quantity", function 6 "Monitor
-             Fulfillment Deadline" and function 7 "Check Request Status".
-             Shows the live quantity breakdown, the reservations donors have
-             committed, the delivery state reported by module 3.4, and the full
-             status history of the request.
+    FoodLink - Module 3.3 Food Request Management: NG JIA QIN
 --}}
 @extends('layouts.app')
 

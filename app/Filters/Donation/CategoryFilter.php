@@ -1,11 +1,7 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Filters/Donation/CategoryFilter.php
- * Purpose: Strategy implementing "Filter Donation Options" by food category /
- *          food type, which is how a charity narrows the donation list down to
- *          what its request actually needs.
+ * Purpose: "Filter Donation Options" 
  */
 
 namespace App\Filters\Donation;

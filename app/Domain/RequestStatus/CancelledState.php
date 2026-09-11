@@ -1,8 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Domain/RequestStatus/CancelledState.php
  * Purpose: Concrete terminal state. The charity withdrew the request, so it is
  *          kept for history only and can no longer be edited or reserved.
  */

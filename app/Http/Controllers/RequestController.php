@@ -1,10 +1,8 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Controllers/RequestController.php
- * Purpose: Web controller (the "C" of MVC) for the Food Request Management
- *          module. It covers all ten functions of the module:
+ * Purpose: Web controller  for the Food Request Management
+ *          module. covers all ten functions of the module:
  *            1. Create Food Request          -> create() / store()
  *            2. View Request Dashboard       -> index()
  *            3. Edit Request Details         -> edit() / update()
@@ -15,10 +13,6 @@
  *            8. Display Active Donations     -> donations()
  *            9. Filter Donation Options      -> donations()
  *           10. Search Specific Donations    -> donations()
- *
- *          The controller holds no business rules: reads go through
- *          FoodRequestRepository, writes go through FoodRequestService, and
- *          donation data is fetched through DonationGateway.
  */
 
 namespace App\Http\Controllers;

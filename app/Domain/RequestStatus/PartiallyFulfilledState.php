@@ -1,8 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Domain/RequestStatus/PartiallyFulfilledState.php
  * Purpose: Concrete state. At least one donation has been reserved or delivered
  *          against the request, so processing has begun and the details are
  *          locked, but the charity may still withdraw the outstanding part.

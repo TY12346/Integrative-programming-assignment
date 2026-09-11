@@ -1,14 +1,5 @@
 <?php
-/**
- * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Filters/Donation/DonationFilterPipeline.php
- * Purpose: Context class of the STRATEGY design pattern. It holds the set of
- *          registered filter strategies and applies the ones the user actually
- *          supplied. The concrete strategies are injected by
- *          FoodRequestServiceProvider, so adding a new filter is a one line
- *          change in the provider.
- */
+
 
 namespace App\Filters\Donation;
 

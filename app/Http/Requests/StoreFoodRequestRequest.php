@@ -1,15 +1,7 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Requests/StoreFoodRequestRequest.php
  * Purpose: Validation and authorisation for "Create Food Request".
- *
- * Secure coding: a Form Request rejects the payload before it ever reaches the
- * controller. Only the listed keys are returned by validated(), the unit is
- * checked against a whitelist rather than accepted as free text, the category
- * must exist, and the length limits stop oversized input from reaching the
- * database.
  */
 
 namespace App\Http\Requests;

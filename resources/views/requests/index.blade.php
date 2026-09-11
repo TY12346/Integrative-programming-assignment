@@ -1,15 +1,6 @@
 {{--
-    FoodLink - Module 3.3 Food Request Management
-    Author : NG JIA QIN
-    File   : resources/views/requests/index.blade.php
-    Purpose: Function 2 "View Request Dashboard" and function 6 "Monitor
-             Fulfillment Deadline". Shows the charity's active and historical
-             requests with their tracked quantities, deadline urgency and the
-             actions each request status still allows.
-
-    Secure coding: every value is printed through Blade's escaped echo syntax,
-    so text a user typed (for example the notes field) is HTML-escaped and can
-    never execute as script.
+    FoodLink - Module 3.3 Food Request Management NG JIA QIN
+  
 --}}
 @extends('layouts.app')
 

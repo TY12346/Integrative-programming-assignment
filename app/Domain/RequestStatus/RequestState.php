@@ -1,8 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Domain/RequestStatus/RequestState.php
  * Purpose: Abstract participant of the STATE design pattern. Every food request
  *          status is represented by its own class that knows which operations
  *          it permits and which state it moves to next. The controllers, views

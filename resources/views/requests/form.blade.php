@@ -1,15 +1,6 @@
 {{--
-    FoodLink - Module 3.3 Food Request Management
-    Author : NG JIA QIN
-    File   : resources/views/requests/form.blade.php
-    Purpose: Function 1 "Create Food Request" and function 3 "Edit Request
-             Details". The same form serves both, because the validation rules
-             are identical; only the target route and method differ.
+    FoodLink - Module 3.3 Food Request Management NG JIA QIN
 
-    Secure coding: the CSRF directive adds an anti cross-site-request-forgery
-    token to every submission, old() re-fills the form from the flashed input
-    rather than from raw request data, and the unit list is a server-side
-    whitelist so a tampered option value is rejected.
 --}}
 @extends('layouts.app')
 

@@ -1,29 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Services/Gateways/HttpDonationGateway.php
- * Purpose: Web service CONSUMER. Instead of reading the donation tables, this
- *          implementation calls the REST endpoint published by the Food
- *          Donation Management module (3.2) over HTTP and adapts the JSON
- *          payload back into FoodDonation model objects, so the views and the
- *          rest of my module do not change at all.
- *
- *          Enable it with FOODLINK_DONATION_GATEWAY=http in .env.
- *
- *          cURL is used directly rather than a third party HTTP client so that
- *          the project does not gain an extra Composer dependency.
- *
- * Secure coding notes:
- *   - TLS certificate and host verification are switched on explicitly.
- *   - A connect and total timeout stop a slow partner service from hanging the
- *     charity's page.
- *   - Redirects are not followed, so the endpoint cannot bounce the call to an
- *     attacker controlled host.
- *   - The response is size limited and strictly decoded; any malformed payload
- *     is discarded rather than trusted.
- *   - If the partner service is unavailable the call degrades to the local
- *     gateway instead of showing the charity an error page.
  */
 
 namespace App\Services\Gateways;

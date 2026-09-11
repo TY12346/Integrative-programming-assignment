@@ -1,8 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Filters/Donation/MinQuantityFilter.php
  * Purpose: Strategy implementing "Filter Donation Options" by remaining
  *          quantity, so a charity only sees donations large enough to cover the
  *          outstanding part of its request.

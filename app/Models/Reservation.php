@@ -1,13 +1,8 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Models/Reservation.php
  * Purpose: Eloquent model for the link between a food request (module 3.3) and
- *          a food donation (module 3.2). A reservation is the record of the
- *          quantity a donor has committed, and it is what module 3.4 turns into
- *          a delivery task. Status constants live here so that every module
- *          agrees on the same vocabulary.
+ *          a food donation (module 3.2). 
  */
 
 namespace App\Models;

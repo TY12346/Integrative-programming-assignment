@@ -1,19 +1,6 @@
 <?php
 /**
- * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : tests/module_3_3_selfcheck.php
- * Purpose: Self-check for the pure logic of the module: the request state
- *          machine (function 7 "Check Request Status"), the deadline driven
- *          transition (function 6 "Monitor Fulfillment Deadline"), the reserved
- *          and outstanding quantity arithmetic (function 5 "Track Reserved
- *          Quantity") and the LIKE escaping used by the donation keyword search
- *          (function 10 "Search Specific Donations").
- *
- *          These classes hold no Eloquent or framework dependency on purpose,
- *          so the check runs with plain PHP and no database:
- *
- *              php tests/module_3_3_selfcheck.php
+ * FoodLink - Module 3.3 Food Request ManagementNG JIA QIN
  */
 
 declare(strict_types=1);

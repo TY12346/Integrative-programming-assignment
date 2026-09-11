@@ -1,8 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Domain/RequestStatus/RequestProgress.php
  * Purpose: Immutable value object holding the numbers a request state needs in
  *          order to decide the next state. Keeping it free of Eloquent makes the
  *          whole state machine unit-testable without a database.

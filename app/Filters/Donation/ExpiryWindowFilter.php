@@ -1,11 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Filters/Donation/ExpiryWindowFilter.php
- * Purpose: Strategy implementing "Filter Donation Options" by expiry window.
- *          A charity can list only the donations expiring within N hours, which
- *          is how the most at-risk food gets rescued first.
  */
 
 namespace App\Filters\Donation;

@@ -1,25 +1,6 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Services/FoodRequestService.php
- * Purpose: Business rules of the Food Request Management module. Controllers
- *          only validate input and choose a view; every rule about who may do
- *          what, how quantities move and when the status changes lives here, so
- *          the web controller and the REST web service behave identically.
- *
- * Secure coding notes:
- *   - charity_id always comes from the authenticated partner profile, never
- *     from the request payload.
- *   - Reserving runs inside a database transaction with SELECT ... FOR UPDATE
- *     on both the request and the donation row, so two charities reserving the
- *     same donation at the same moment cannot oversubscribe it.
- *   - Every rule is re-checked here even though the form already validated it,
- *     because the REST API and the browser form are two different entry points.
- *   - Every create, cancel, reserve, release and status transition is written to
- *     the application log with the acting user id, which is the module's audit
- *     trail. The analysis class diagram has no history entity for food requests,
- *     so no extra table is introduced for this.
  */
 
 namespace App\Services;

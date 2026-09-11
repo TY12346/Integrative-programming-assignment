@@ -1,12 +1,7 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Models/FoodRequest.php
- * Purpose: Eloquent ORM model (the "M" of MVC) for a charity food request.
- *          It maps the food_requests table, declares its relationships, and
- *          exposes the derived values used by the module: reserved quantity,
- *          outstanding quantity, deadline urgency and the current state object.
+ * Purpose: Eloquent ORM model  for a charity food request.
  */
 
 namespace App\Models;
@@ -23,12 +18,7 @@ class FoodRequest extends Model
 
     protected $primaryKey = 'request_id';
 
-    /**
-     * Secure coding: mass-assignment whitelist. charity_id, fulfilled_quantity
-     * and request_status are deliberately NOT fillable, so a crafted form field
-     * can never reassign a request to another charity or fake its progress;
-     * those columns are only written by the service layer.
-     */
+ 
     protected $fillable = [
         'category_id',
         'requested_quantity',

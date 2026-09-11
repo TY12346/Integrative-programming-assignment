@@ -1,12 +1,9 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Resources/DonationResource.php
  * Purpose: JSON representation of an active donation as consumed by the
  *          charity-facing endpoints of this module ("Display Active
- *          Donations"). Only the fields a charity needs in order to decide are
- *          exposed; donor contact details stay out of the payload.
+ *          Donations")
  */
 
 namespace App\Http\Resources;

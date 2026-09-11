@@ -1,14 +1,8 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Resources/FoodRequestResource.php
  * Purpose: Transforms a FoodRequest model into the JSON representation
  *          published by the module's REST web service.
- *
- * Secure coding: a resource is an explicit output whitelist. Only the fields
- * listed here leave the system, so an added database column can never be leaked
- * to an API client by accident.
  */
 
 namespace App\Http\Resources;

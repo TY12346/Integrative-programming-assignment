@@ -1,11 +1,7 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Http/Resources/ReservationResource.php
- * Purpose: JSON representation of a reservation. This is the payload the
- *          Delivery and Impact Tracking module (3.4) reads when it turns a
- *          confirmed reservation into a delivery task.
+ * Purpose: JSON representation of a reservation. 
  */
 
 namespace App\Http\Resources;

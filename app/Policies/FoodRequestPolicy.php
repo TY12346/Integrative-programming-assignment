@@ -1,16 +1,8 @@
 <?php
 /**
  * FoodLink - Module 3.3 Food Request Management
- * Author : NG JIA QIN
- * File   : app/Policies/FoodRequestPolicy.php
  * Purpose: Central authorisation rules for food requests, applied by both the
  *          web controller and the REST web service.
- *
- * Secure coding: this is the defence against broken access control (insecure
- * direct object references). Ownership is compared against the partner profile
- * of the logged in user, so changing the id in the URL or in an API call
- * returns 403 instead of another charity's data. The verification status issued
- * by the User and Partner Management module (3.1) is also enforced here.
  */
 
 namespace App\Policies;
