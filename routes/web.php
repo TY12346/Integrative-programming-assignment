@@ -22,7 +22,17 @@ Route::post('/admin/users',[AdminController::class,'storeAdmin']);
 Route::patch('/admin/users/{user}',[AdminController::class,'updateStatus']);
 Route::get('/admin/verifications',[AdminController::class,'verifications']);
 Route::get('/admin/verifications/{profile}',[AdminController::class,'verificationHistory']);
-Route::post('/admin/verifications/{profile}',[AdminController::class,'review']); });
+Route::post('/admin/verifications/{profile}',[
+    AdminController::class,
+    'review'
+]);
+
+Route::get('/admin/verification-documents/{document}', [
+    AdminController::class,
+    'viewVerificationDocument'
+])->name('admin.verification-documents.view');
+
+});
 Route::middleware('verified.role:FOOD_DONOR')->group(function(){ Route::resource('donations',DonationController::class)->except(['destroy']);
 Route::post('/donations/{donation}/cancel',[DonationController::class,'cancel']);
 Route::get('/donations/photos/{photo}/file',[DonationController::class,'servePhoto']);

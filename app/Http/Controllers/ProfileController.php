@@ -48,7 +48,7 @@ class ProfileController extends Controller
             'document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        $path = $data['document']->store('verification_documents', 'public');
+        $path = $data['document']->store('verification_documents', 'local');
         VerificationDocument::create([
             'partner_id' => $user->partnerProfile->profile_id,
             'document_type' => $data['document_type'],
@@ -78,5 +78,19 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/login')->with('message', 'Your account has been deleted.');
+    }
+    
+    public function viewVerificationDocument(
+    VerificationDocument $document
+    ) {
+        abort_unless(
+            Storage::disk('local')->exists($document->file_path),
+            404,
+            'The submitted document file cannot be found.'
+        );
+
+        return Storage::disk('local')->response(
+            $document->file_path
+        );
     }
 }

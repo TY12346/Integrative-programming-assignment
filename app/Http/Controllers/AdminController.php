@@ -8,6 +8,8 @@ use App\Services\UserRoles\UserRoleFactoryResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Models\VerificationDocument;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -122,5 +124,19 @@ class AdminController extends Controller
         });
 
         return back()->with('message', 'Verification request reviewed.');
+    }
+    
+    public function viewVerificationDocument(
+    VerificationDocument $document
+    ) {
+        abort_unless(
+            Storage::disk('local')->exists($document->file_path),
+            404,
+            'The submitted document file cannot be found.'
+        );
+
+        return Storage::disk('local')->response(
+            $document->file_path
+        );
     }
 }

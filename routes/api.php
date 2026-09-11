@@ -1,20 +1,31 @@
 <?php
 
 /**
+ Module 3.1 User and Partner Management Module
  Author: Ong Tin Yin
  */
+use App\Http\Controllers\Api\PartnerManagementApiController;
 use Illuminate\Support\Facades\Route; use App\Http\Controllers\ApiController;
-Route::get('/partners/{id}/status', [
-    ApiController::class,
-    'partnerStatus',
-])->middleware([
-    'api.token',
-    'verified.role:FOOD_DONOR,CHARITY,VOLUNTEER,ADMIN',
-    'throttle:60,1',
-]);
+
 Route::get('/donations/available',[ApiController::class,'availableDonations']);
 Route::get('/requests/{id}/reservations',[ApiController::class,'requestReservations']);
 Route::get('/deliveries/{id}/status',[ApiController::class,'deliveryStatus']);
+
+Route::prefix('v1')
+    ->middleware([
+        'api.token',
+        'throttle:60,1',
+    ])
+    ->group(function () {
+        Route::get(
+            '/partners/{id}/status',
+            [PartnerManagementApiController::class, 'status']
+        )
+            ->whereNumber('id')
+            ->middleware(
+                'verified.role:FOOD_DONOR,CHARITY,VOLUNTEER,ADMIN'
+            );
+    });
 
 /*
 |--------------------------------------------------------------------------
