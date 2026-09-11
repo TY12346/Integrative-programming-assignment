@@ -74,5 +74,34 @@ Route::middleware('verified.role:FOOD_DONOR')->group(function(){
      Route::delete('/requests/{foodRequest}/reservations/{reservation}',[RequestController::class,'releaseReservation'])->name('requests.reservations.release');
  });
  
- Route::middleware('verified.role:VOLUNTEER,ADMIN')->group(function(){ Route::get('/deliveries',[DeliveryController::class,'index']); Route::post('/reservations/{reservation}/delivery',[DeliveryController::class,'createFromReservation']); Route::get('/deliveries/{delivery}/edit',[DeliveryController::class,'edit']); Route::patch('/deliveries/{delivery}',[DeliveryController::class,'update']); }); });
+ /*
+|--------------------------------------------------------------------------
+| Module 3.4 Delivery & Impact Tracking - KHOO SHENG HAO
+|--------------------------------------------------------------------------
+*/
+Route::middleware('verified.role:VOLUNTEER,ADMIN')->group(function () {
+
+    // View all visible delivery tasks
+    Route::get('/deliveries',[DeliveryController::class, 'index'])->name('deliveries.index');
+
+    // Show create delivery form
+    Route::get('/deliveries/create',[DeliveryController::class, 'create'])->name('deliveries.create');
+
+    // Store a new delivery task
+    Route::post('/deliveries',[DeliveryController::class, 'store'])->name('deliveries.store');
+
+    // Create/claim a task directly from a reservation
+    Route::post('/reservations/{reservation}/delivery',[DeliveryController::class, 'createFromReservation'])->name('deliveries.createFromReservation');
+
+    // View one delivery task
+    Route::get('/deliveries/{delivery}',[DeliveryController::class, 'show'])->name('deliveries.show');
+
+    // Show delivery status update form
+    Route::get('/deliveries/{delivery}/edit',[DeliveryController::class, 'edit'])->name('deliveries.edit');
+
+    // Update delivery status
+    Route::patch('/deliveries/{delivery}',[DeliveryController::class, 'update'])->name('deliveries.update');
+});
+
+});
  
