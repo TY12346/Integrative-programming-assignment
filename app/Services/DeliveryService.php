@@ -62,7 +62,7 @@ class DeliveryService
                 'remarks' => $this->notes->sanitize($data['delivery_notes'] ?? 'Delivery task created.'),
             ]);
 
-            return $task->load(['reservation.donation', 'reservation.request.charity', 'volunteer.user']);
+            return $task->fresh(['reservation.donation', 'reservation.request.charity', 'volunteer.user']);
         });
     }
 
