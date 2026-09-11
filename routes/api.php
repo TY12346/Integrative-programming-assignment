@@ -65,17 +65,18 @@ Route::prefix('v1')
             'show',
         ])->whereNumber('delivery');
 
-        Route::post('/deliveries', [
-            DeliveryApiController::class,
-            'store',
-        ])->middleware('delivery.hmac');
+        Route::middleware('delivery.hmac')
+        ->group(function () {
+            Route::post('/deliveries', [
+                DeliveryApiController::class,
+                'store',
+            ]);
 
-        Route::patch('/deliveries/{delivery}/status', [
-            DeliveryApiController::class,
-            'updateStatus',
-        ])
-            ->whereNumber('delivery')
-            ->middleware('delivery.hmac');
+            Route::patch('/deliveries/{delivery}/status', [
+                           DeliveryApiController::class,
+                'updateStatus',
+            ])->whereNumber('delivery');
+        });
     });
     
     
