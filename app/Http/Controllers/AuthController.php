@@ -80,9 +80,16 @@ class AuthController extends Controller
          * Reset the old failure counter after the lockout has expired.
          */
         if ($user && $user->locked_until && $user->locked_until->isPast()) {
+            $fullLockoutExpired =
+                $user->failed_login_attempts >= self::MAX_FAILED_ATTEMPTS;
+
             $user->forceFill([
-                'failed_login_attempts' => 0,
-                'last_failed_login_at' => null,
+                'failed_login_attempts' => $fullLockoutExpired
+                    ? 0
+                    : $user->failed_login_attempts,
+                'last_failed_login_at' => $fullLockoutExpired
+                    ? null
+                    : $user->last_failed_login_at,
                 'locked_until' => null,
             ])->save();
         }
