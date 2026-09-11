@@ -17,6 +17,21 @@ Route::post('/profile',[ProfileController::class,'update']);
 Route::delete('/profile',[ProfileController::class,'destroy']);
 Route::post('/profile/document',[ProfileController::class,'uploadDocument']);
 Route::get('/donations/available',[DonationController::class,'available'])->middleware('verified.role:FOOD_DONOR,CHARITY,VOLUNTEER,ADMIN');
+Route::middleware(
+    'verified.role:FOOD_DONOR,CHARITY,VOLUNTEER,ADMIN'
+)->group(function () {
+    Route::get('/donations/{donation}', [
+        DonationController::class,
+        'show'
+    ])
+        ->whereNumber('donation')
+        ->name('donations.show');
+
+    Route::get('/donations/photos/{photo}/file', [
+        DonationController::class,
+        'servePhoto'
+    ])->whereNumber('photo');
+});
 Route::middleware('verified.role:ADMIN')->group(function(){ Route::get('/admin/users',[AdminController::class,'users']);
 Route::post('/admin/users',[AdminController::class,'storeAdmin']);
 Route::patch('/admin/users/{user}',[AdminController::class,'updateStatus']);
@@ -53,10 +68,10 @@ Route::middleware('verified.role:FOOD_DONOR')->group(function(){
     )->except([
         'destroy',
         'create',
-        'store'
+        'store',
+        'show'
     ]);
     Route::post('/donations/{donation}/cancel',[DonationController::class,'cancel']);
-    Route::get('/donations/photos/{photo}/file',[DonationController::class,'servePhoto']);
     Route::post('/donations/{donation}/photos',[DonationController::class,'storePhotos']);
     Route::delete('/donations/{donation}/photos/{photo}',[DonationController::class,'destroyPhoto']);
     
