@@ -23,8 +23,6 @@
             </p>
         @endauth
 
-        <p>The server-side RBAC middleware rejected this request.</p>
-
         <a href="/dashboard" class="btn btn-primary">
             Return to Dashboard
         </a>
