@@ -68,27 +68,13 @@ Route::prefix('v1')
         'throttle:60,1',
     ])
     ->group(function () {
-        Route::get('/deliveries', [
-            DeliveryApiController::class,
-            'index',
-        ]);
+        Route::get('/deliveries', [DeliveryApiController::class,'index',]);
 
-        Route::get('/deliveries/{delivery}', [
-            DeliveryApiController::class,
-            'show',
-        ])->whereNumber('delivery');
+        Route::get('/deliveries/{delivery}', [DeliveryApiController::class,'show',])->whereNumber('delivery');
 
-        Route::middleware('delivery.hmac')
-        ->group(function () {
-            Route::post('/deliveries', [
-                DeliveryApiController::class,
-                'store',
-            ]);
+        Route::middleware('delivery.hmac')->group(function () {Route::post('/deliveries', [DeliveryApiController::class,'store',]);
 
-            Route::patch('/deliveries/{delivery}/status', [
-                           DeliveryApiController::class,
-                'updateStatus',
-            ])->whereNumber('delivery');
+        Route::patch('/deliveries/{delivery}/status', [DeliveryApiController::class, 'updateStatus',])->whereNumber('delivery');
         });
     });
     
