@@ -35,6 +35,7 @@ class DeliveryApiController extends Controller
     /** GET /api/v1/deliveries */
     public function index(Request $request): JsonResponse
     {
+        $requestId = $this->validateRequestId($request);
         $this->ensureDeliveryApiRole($request);
 
         $query = DeliveryTask::query()
@@ -64,15 +65,19 @@ class DeliveryApiController extends Controller
     /** GET /api/v1/deliveries/{delivery} */
     public function show(Request $request, DeliveryTask $delivery): JsonResponse
     {
+        $requestId = $this->validateRequestId($request);
         $this->ensureDeliveryApiRole($request, $delivery);
 
         $delivery->load(['volunteer.user', 'impacts']);
 
         return response()->json([
             'status' => 'success',
+            'requestID' => $requestId,
             'timestamp' => now()->toIso8601String(),
-            'data' => (new DeliveryTaskResource($delivery))->resolve($request),
-        ]);
+            'data' => (
+                new DeliveryTaskResource($delivery)
+            )->resolve($request),
+            ]);
     }
 
     /** POST /api/v1/deliveries */
@@ -139,4 +144,18 @@ class DeliveryApiController extends Controller
             'You may only access delivery tasks assigned to you.'
         );
     }
+    
+    private function validateRequestId(Request $request): string
+        {
+    $validated = $request->validate([
+        'requestID' => [
+            'required',
+            'string',
+            'max:100',
+            'regex:/^[A-Za-z0-9_-]+$/',
+        ],
+    ]);
+
+    return $validated['requestID'];
+        }
 }
