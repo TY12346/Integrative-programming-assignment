@@ -118,13 +118,25 @@ class DeliveryController extends Controller
         return view('deliveries.edit', compact('delivery'));
     }
 
-    public function update(UpdateDeliveryStatusRequest $request, DeliveryTask $delivery)
-    {
-        $this->deliveries->updateStatus($delivery, $request->user(), $request->validated());
+    public function update(
+    UpdateDeliveryStatusRequest $request,
+    DeliveryTask $delivery
+        ) {
+    $this->ensureVisibleTo($request, $delivery);
 
-        return redirect()->route('deliveries.show', $delivery)
-            ->with('message', 'Delivery status updated successfully.');
-    }
+    $this->deliveries->updateStatus(
+        $delivery,
+        $request->user(),
+        $request->validated()
+        );
+
+    return redirect()
+        ->route('deliveries.show', $delivery)
+        ->with(
+            'message',
+            'Delivery status updated successfully.'
+            );
+        }
 
     private function ensureVisibleTo(Request $request, DeliveryTask $delivery): void
     {
