@@ -41,7 +41,20 @@ Route::prefix('v1')
     });
 
     
-    
+Route::prefix('v1')
+    ->middleware([
+        'module.client:module-3-1',
+        'throttle:60,1',
+    ])
+    ->group(function () {
+        Route::get(
+            '/integrations/volunteers/{volunteer}/delivery-obligations',
+            [
+                DeliveryApiController::class,
+                'volunteerObligations'
+            ]
+        )->whereNumber('volunteer');
+    });
     
 /*
 |--------------------------------------------------------------------------

@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models {
+    
+    
     class User
     {
         public const ROLE_FOOD_DONOR = 'FOOD_DONOR';
@@ -17,6 +19,18 @@ namespace App\Models {
     class PartnerProfile {}
 }
 
+
+namespace App\Services\ModuleIntegration {
+    class DeliveryObligationApiClient
+    {
+        public function hasActiveDeliveries(
+            int $volunteerID
+        ): bool {
+            return false;
+        }
+    }
+}
+
 namespace {
     require_once __DIR__.'/../app/Services/UserRoles/UserRoleHandler.php';
     require_once __DIR__.'/../app/Services/UserRoles/FoodDonorRoleHandler.php';
@@ -29,7 +43,8 @@ namespace {
     require_once __DIR__.'/../app/Services/UserRoles/Factories/VolunteerFactory.php';
     require_once __DIR__.'/../app/Services/UserRoles/Factories/AdminFactory.php';
     require_once __DIR__.'/../app/Services/UserRoles/UserRoleFactoryResolver.php';
-
+    
+    use App\Services\ModuleIntegration\DeliveryObligationApiClient;
     use App\Services\UserRoles\AdminRoleHandler;
     use App\Services\UserRoles\CharityRoleHandler;
     use App\Services\UserRoles\FoodDonorRoleHandler;
@@ -47,7 +62,9 @@ namespace {
         'ADMIN' => [AdminFactory::class, AdminRoleHandler::class],
     ];
 
-    $resolver = new UserRoleFactoryResolver();
+    $resolver = new UserRoleFactoryResolver(
+        new DeliveryObligationApiClient()
+    );
     foreach ($cases as $role => [$expectedCreator, $expectedProduct]) {
         $creator = $resolver->resolve($role);
         $product = $creator->handler();

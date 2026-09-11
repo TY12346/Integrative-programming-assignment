@@ -20,6 +20,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DeliveryTaskResource;
 use App\Models\DeliveryTask;
+use App\Models\PartnerProfile;
 use App\Models\User;
 use App\Services\DeliveryService;
 use Illuminate\Http\JsonResponse;
@@ -75,6 +76,40 @@ class DeliveryApiController extends Controller
         ]);
     }
 
+    /* Authored by Ong Tin Yin for module 3.1 consuming API of module 3.4 */
+    public function volunteerObligations(
+        Request $request,
+        int $volunteer
+    ): JsonResponse {
+        $profile = PartnerProfile::query()
+            ->whereHas('user', function ($query) {
+                $query->where('role', User::ROLE_VOLUNTEER);
+            })
+            ->findOrFail($volunteer);
+
+        $activeStatuses = [
+            DeliveryTask::ASSIGNED,
+            DeliveryTask::PICKED_UP,
+        ];
+
+        $activeDeliveryCount = DeliveryTask::query()
+            ->where('volunteer_id', $profile->profile_id)
+            ->whereIn('delivery_status', $activeStatuses)
+            ->count();
+
+        return response()->json([
+            'status' => 'success',
+            'requestID' => $request->query('requestID'),
+            'timestamp' => now()->toISOString(),
+            'data' => [
+                'volunteerID' => (int) $profile->profile_id,
+                'hasActiveDeliveries' => $activeDeliveryCount > 0,
+                'activeDeliveryCount' => $activeDeliveryCount,
+            ],
+        ]);
+    }
+    
+    
     /** POST /api/v1/deliveries */
     public function store(Request $request): JsonResponse
     {
