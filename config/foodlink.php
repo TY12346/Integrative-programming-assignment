@@ -10,6 +10,14 @@
 
 return [
 
+    'delivery' => [
+        'hmac_secret' => env('DELIVERY_API_HMAC_SECRET'),
+        'hmac_window_seconds' => (int) env(
+            'DELIVERY_API_HMAC_WINDOW_SECONDS',
+            300
+        ),
+    ],
+    
     /*
     | Which implementation of App\Services\Gateways\DonationGateway is used when
     | this module needs data owned by the Food Donation Management module.

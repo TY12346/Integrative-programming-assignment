@@ -10,4 +10,5 @@
 
 return [
     App\Providers\FoodRequestServiceProvider::class,
+    App\Providers\DeliveryServiceProvider::class,
 ];
