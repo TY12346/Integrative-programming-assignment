@@ -73,53 +73,60 @@
             @enderror
         </div>
 
-        <div class="mb-3">
-            <label class="form-label" for="donation_quantity">Original quantity</label>
-            <input
-                class="form-control @error('donation_quantity') is-invalid @enderror"
-                id="donation_quantity"
-                name="donation_quantity"
-                type="number"
-                step="0.01"
-                min="0.01"
-                required
-                value="{{ old('donation_quantity', $donation->donation_quantity) }}"
-                placeholder="Quantity"
-                aria-describedby="@error('donation_quantity') donation_quantity_error @enderror"
-            >
-            @error('donation_quantity')
-                <div id="donation_quantity_error" class="invalid-feedback" role="alert">{{ $message }}</div>
-            @enderror
-            @if ($donation->exists)
+        @if ($donation->exists)
+            <div class="mb-3">
+                <label class="form-label">Original quantity</label>
+                <p class="form-control-plaintext mb-1">
+                    {{ $donation->donation_quantity }} {{ $donation->measurement_unit }}
+                </p>
                 <p class="form-text text-muted mb-0">
                     Remaining available quantity (not editable):
                     <strong>{{ $donation->current_quantity }} {{ $donation->measurement_unit }}</strong>.
                     Status: <strong>{{ $donation->statusLabel() }}</strong>.
                 </p>
-            @endif
-        </div>
+            </div>
+        @else
+            <div class="mb-3">
+                <label class="form-label" for="donation_quantity">Original quantity</label>
+                <input
+                    class="form-control @error('donation_quantity') is-invalid @enderror"
+                    id="donation_quantity"
+                    name="donation_quantity"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    value="{{ old('donation_quantity', $donation->donation_quantity) }}"
+                    placeholder="Quantity"
+                    aria-describedby="@error('donation_quantity') donation_quantity_error @enderror"
+                >
+                @error('donation_quantity')
+                    <div id="donation_quantity_error" class="invalid-feedback" role="alert">{{ $message }}</div>
+                @enderror
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label" for="measurement_unit">Unit</label>
-            <select
-                class="form-select @error('measurement_unit') is-invalid @enderror"
-                id="measurement_unit"
-                name="measurement_unit"
-                required
-                aria-describedby="@error('measurement_unit') measurement_unit_error @enderror"
-            >
-                <option value="">Select a unit</option>
-                @foreach (config('foodlink.request.units', []) as $unit)
-                    <option value="{{ $unit }}"
-                        @selected(old('measurement_unit', $donation->measurement_unit) === $unit)>
-                        {{ $unit }}
-                    </option>
-                @endforeach
-            </select>
-            @error('measurement_unit')
-                <div id="measurement_unit_error" class="invalid-feedback" role="alert">{{ $message }}</div>
-            @enderror
-        </div>
+            <div class="mb-3">
+                <label class="form-label" for="measurement_unit">Unit</label>
+                <select
+                    class="form-select @error('measurement_unit') is-invalid @enderror"
+                    id="measurement_unit"
+                    name="measurement_unit"
+                    required
+                    aria-describedby="@error('measurement_unit') measurement_unit_error @enderror"
+                >
+                    <option value="">Select a unit</option>
+                    @foreach (config('foodlink.request.units', []) as $unit)
+                        <option value="{{ $unit }}"
+                            @selected(old('measurement_unit', $donation->measurement_unit) === $unit)>
+                            {{ $unit }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('measurement_unit')
+                    <div id="measurement_unit_error" class="invalid-feedback" role="alert">{{ $message }}</div>
+                @enderror
+            </div>
+        @endif
 
         <div class="mb-3">
             <label class="form-label" for="expiry_datetime">Expiry date/time</label>

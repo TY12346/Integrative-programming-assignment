@@ -337,6 +337,7 @@ class DonationController extends Controller
     /**
      * Validated editable donation fields only.
      * Never accepts donor_id, current_quantity, donation_status, or donation_id.
+     * donation_quantity and measurement_unit are accepted only when creating.
      *
      * @return array<string, mixed>
      */
@@ -351,14 +352,6 @@ class DonationController extends Controller
             'category_id' => ['required', 'integer', 'exists:food_categories,category_id'],
             'food_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'measurement_unit' => ['required', 'string', 'max:255', Rule::in($units)],
-            'donation_quantity' => array_values(array_filter([
-                'required',
-                'numeric',
-                'gt:0',
-                'max:'.$maxQuantity,
-                $requiresWholeNumber ? 'integer' : null,
-            ])),
             'expiry_datetime' => ['required', 'date', 'after:now'],
             'pickup_address' => ['required', 'string', 'max:1000'],
             'storage_type' => ['nullable', 'string', 'max:255'],
@@ -366,6 +359,14 @@ class DonationController extends Controller
         ];
 
         if ($creating) {
+            $rules['measurement_unit'] = ['required', 'string', 'max:255', Rule::in($units)];
+            $rules['donation_quantity'] = array_values(array_filter([
+                'required',
+                'numeric',
+                'gt:0',
+                'max:'.$maxQuantity,
+                $requiresWholeNumber ? 'integer' : null,
+            ]));
             $rules['photos'] = ['nullable', 'array'];
             $rules['photos.*'] = ['image', 'mimes:jpeg,jpg,png,webp', 'max:5120'];
         }
@@ -405,7 +406,7 @@ class DonationController extends Controller
 
         $validated = $request->validate($rules, $messages);
 
-        // Never mass-assign ownership, stock, or status from the request.
+        // Never mass-assign ownership, stock, status, or create-only quantity/unit on update.
         unset(
             $validated['donor_id'],
             $validated['donation_id'],
@@ -413,6 +414,10 @@ class DonationController extends Controller
             $validated['donation_status'],
             $validated['photos']
         );
+
+        if (! $creating) {
+            unset($validated['donation_quantity'], $validated['measurement_unit']);
+        }
 
         return $validated;
     }
