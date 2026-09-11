@@ -19,7 +19,12 @@
             <h1 class="h3 mb-1">{{ $donation->food_name }}</h1>
             <span class="badge {{ $donation->statusBadgeClass() }}">{{ $donation->statusLabel() }}</span>
         </div>
-        <a class="btn btn-outline-secondary" href="/donations">Back</a>
+        <a class="btn btn-outline-secondary"
+            href="{{ auth()->user()->role === \App\Models\User::ROLE_FOOD_DONOR
+                ? url('/donations')
+                : url('/donations/available') }}">
+            Back
+        </a>
     </div>
 
     <div class="card mb-3">
