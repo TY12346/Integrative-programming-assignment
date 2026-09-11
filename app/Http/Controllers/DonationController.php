@@ -362,7 +362,7 @@ class DonationController extends Controller
             'expiry_datetime' => ['required', 'date', 'after:now'],
             'pickup_address' => ['required', 'string', 'max:1000'],
             'storage_type' => ['nullable', 'string', 'max:255'],
-            'halal_status' => ['nullable', 'string', 'max:255'],
+            'halal_status' => ['nullable', 'string', Rule::in(['Halal', 'Non-Halal'])],
         ];
 
         if ($creating) {
@@ -397,7 +397,7 @@ class DonationController extends Controller
             'storage_type.string' => 'The storage requirement must be text.',
             'storage_type.max' => 'The storage requirement may not be longer than 255 characters.',
             'halal_status.string' => 'The halal status must be text.',
-            'halal_status.max' => 'The halal status may not be longer than 255 characters.',
+            'halal_status.in' => 'Please select either Halal or Non-Halal.',
             'photos.*.image' => 'Each uploaded file must be an image.',
             'photos.*.mimes' => 'Each photo must be a JPEG, PNG, or WebP image.',
             'photos.*.max' => 'Each photo may not be larger than 5 MB.',

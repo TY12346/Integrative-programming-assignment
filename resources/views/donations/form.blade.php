@@ -175,15 +175,16 @@
 
         <div class="mb-3">
             <label class="form-label" for="halal_status">Halal status</label>
-            <input
-                class="form-control @error('halal_status') is-invalid @enderror"
+            <select
+                class="form-select @error('halal_status') is-invalid @enderror"
                 id="halal_status"
                 name="halal_status"
-                maxlength="255"
-                value="{{ old('halal_status', $donation->halal_status) }}"
-                placeholder="Halal status"
                 aria-describedby="@error('halal_status') halal_status_error @enderror"
             >
+                <option value="">Select Halal Status</option>
+                <option value="Halal" @selected(old('halal_status', $donation->halal_status) === 'Halal')>Halal</option>
+                <option value="Non-Halal" @selected(old('halal_status', $donation->halal_status) === 'Non-Halal')>Non-Halal</option>
+            </select>
             @error('halal_status')
                 <div id="halal_status_error" class="invalid-feedback" role="alert">{{ $message }}</div>
             @enderror
