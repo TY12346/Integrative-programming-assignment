@@ -34,6 +34,10 @@ return [
 
     // Seconds before an outgoing web service call is abandoned.
     'api_timeout' => (int) env('FOODLINK_API_TIMEOUT', 5),
+    
+    'food_request_api_url' => env('FOOD_REQUEST_API_URL','http://127.0.0.1:8000/api/v1'),
+
+    'food_request_api_token' => env('FOOD_REQUEST_API_TOKEN'),
 
     'request' => [
         // A request deadline must be at least this many hours in the future.
