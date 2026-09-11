@@ -17,9 +17,16 @@ use App\Models\FoodDonation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Services\ModuleIntegration\PartnerStatusApiClient;
 
 class DonationController extends Controller
 {
+    public function __construct(
+        private readonly PartnerStatusApiClient $partnerStatusApi
+    ) {
+        
+    }
+
     public function index()
     {
         $donations = FoodDonation::with('category')
@@ -118,6 +125,38 @@ class DonationController extends Controller
     {
         $data = $this->validatedDonationData($request, creating: true);
 
+        $partnerID = (int) $request->user()
+            ->partnerProfile
+            ->profile_id;
+
+        try {
+            $partnerStatus = $this->partnerStatusApi
+                ->getStatus($partnerID);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Donation creation failed. This donor is not verified.'
+                );
+        }
+
+        if (
+            data_get(
+                $partnerStatus,
+                'data.eligibleForRoleFeatures'
+            ) !== true
+        ) {
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Your account must be verified and active before you can create a donation.'
+                );
+        }
+        
         $donation = new FoodDonation($data);
         $donation->donor_id = auth()->user()->partnerProfile->profile_id;
         $donation->current_quantity = $data['donation_quantity'];
@@ -140,7 +179,10 @@ class DonationController extends Controller
             }
         }
 
-        return redirect('/donations')->with('message', 'Donation created.');
+        return redirect('/donations')->with(
+            'message',
+            'Donation created successfully.'
+        );
     }
 
     public function show(FoodDonation $donation)

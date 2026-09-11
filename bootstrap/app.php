@@ -6,6 +6,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(web: __DIR__.'/../routes/web.php', api: __DIR__.'/../routes/api.php', commands: __DIR__.'/../routes/console.php', health: '/up')
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'delivery.hmac' => App\Http\Middleware\VerifyDeliveryHmac::class,
+            'module.client' => App\Http\Middleware\AuthenticateModuleClient::class,
             'role' => App\Http\Middleware\RoleMiddleware::class,
             'verified.role' => App\Http\Middleware\VerifiedRoleMiddleware::class,
             // Bearer token authentication for the module 3.3 REST API (NG JIA QIN).

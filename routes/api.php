@@ -6,6 +6,7 @@
  */
 use App\Http\Controllers\Api\PartnerManagementApiController;
 use Illuminate\Support\Facades\Route; use App\Http\Controllers\ApiController;
+use App\Http\Controllers\Api\DeliveryApiController;
 
 Route::get('/donations/available',[ApiController::class,'availableDonations']);
 Route::get('/requests/{id}/reservations',[ApiController::class,'requestReservations']);
@@ -27,6 +28,62 @@ Route::prefix('v1')
             );
     });
 
+Route::prefix('v1')
+    ->middleware([
+        'module.client:module-3-2',
+        'throttle:60,1',
+    ])
+    ->group(function () {
+        Route::get(
+            '/integrations/partners/{id}/status',
+            [PartnerManagementApiController::class, 'status']
+        )->whereNumber('id');
+    });
+
+    
+    
+    
+/*
+|--------------------------------------------------------------------------
+| Module 3.4 Delivery and Impact Tracking REST API
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('v1')
+    ->middleware([
+        'api.token',
+        'throttle:60,1',
+    ])
+    ->group(function () {
+        Route::get('/deliveries', [
+            DeliveryApiController::class,
+            'index',
+        ]);
+
+        Route::get('/deliveries/{delivery}', [
+            DeliveryApiController::class,
+            'show',
+        ])->whereNumber('delivery');
+
+        Route::middleware('delivery.hmac')
+        ->group(function () {
+            Route::post('/deliveries', [
+                DeliveryApiController::class,
+                'store',
+            ]);
+
+            Route::patch('/deliveries/{delivery}/status', [
+                           DeliveryApiController::class,
+                'updateStatus',
+            ])->whereNumber('delivery');
+        });
+    });
+    
+    
+    
+    
+    
+    
 /*
 |--------------------------------------------------------------------------
 | Module 3.3 Food Request Management - REST web service
