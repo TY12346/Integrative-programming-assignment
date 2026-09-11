@@ -26,8 +26,12 @@ final class DonationStatusFilter implements DonationFilter
         $query->where('donation_status', $status);
     }
 
+    /**
+     * Statuses shown on the Available Donations filter dropdown.
+     * CANCELLED and EXPIRED remain valid lifecycle values but are not browse filters.
+     */
     public static function options(): array
     {
-        return self::STATUSES;
+        return ['AVAILABLE', 'RESERVED', 'COMPLETED'];
     }
 }
