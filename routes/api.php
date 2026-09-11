@@ -27,6 +27,18 @@ Route::prefix('v1')
             );
     });
 
+Route::prefix('v1')
+    ->middleware([
+        'module.client:module-3-2',
+        'throttle:60,1',
+    ])
+    ->group(function () {
+        Route::get(
+            '/integrations/partners/{id}/status',
+            [PartnerManagementApiController::class, 'status']
+        )->whereNumber('id');
+    });
+
 /*
 |--------------------------------------------------------------------------
 | Module 3.3 Food Request Management - REST web service

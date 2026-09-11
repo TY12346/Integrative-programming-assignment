@@ -33,11 +33,34 @@ Route::get('/admin/verification-documents/{document}', [
 ])->name('admin.verification-documents.view');
 
 });
-Route::middleware('verified.role:FOOD_DONOR')->group(function(){ Route::resource('donations',DonationController::class)->except(['destroy']);
-Route::post('/donations/{donation}/cancel',[DonationController::class,'cancel']);
-Route::get('/donations/photos/{photo}/file',[DonationController::class,'servePhoto']);
-Route::post('/donations/{donation}/photos',[DonationController::class,'storePhotos']);
-Route::delete('/donations/{donation}/photos/{photo}',[DonationController::class,'destroyPhoto']); });
+
+Route::middleware('role:FOOD_DONOR')->group(function () {
+    Route::get('/donations/create', [
+        DonationController::class,
+        'create'
+    ])->name('donations.create');
+
+    Route::post('/donations', [
+        DonationController::class,
+        'store'
+    ])->name('donations.store');
+});
+
+Route::middleware('verified.role:FOOD_DONOR')->group(function(){ 
+    Route::resource(
+        'donations',
+        DonationController::class
+    )->except([
+        'destroy',
+        'create',
+        'store'
+    ]);
+    Route::post('/donations/{donation}/cancel',[DonationController::class,'cancel']);
+    Route::get('/donations/photos/{photo}/file',[DonationController::class,'servePhoto']);
+    Route::post('/donations/{donation}/photos',[DonationController::class,'storePhotos']);
+    Route::delete('/donations/{donation}/photos/{photo}',[DonationController::class,'destroyPhoto']);
+    
+});
 
   
  /* Module 3.3 Food Request Management - NG JIA QIN */
